@@ -1,0 +1,24 @@
+
+SETTING(BoolValue, bool, GTEAccuracy, "Options", true, "#Enables GTE Accuracy Hack");
+SETTING(BoolValue, bool, FixMemoryDetection, "Options", true, "#Fixes VRAM size detection");
+SETTING(LongValue, s32, VSyncInterval, "Options", 0, "#Enables VSync, paramater specifies the minimum number of video frames that are displayed before a buffer swap will occur");
+SETTING(BoolValue, bool, HideCursor, "Options", false, "#Hides cursor in window");
+SETTING(BoolValue, bool, UsePEC, "Options", false, "#Use Playstation Emulation Cheater plugin");
+SETTING(BoolValue, bool, HardcoreMode, "Options", false, "#Disables PEC and emulator save states (ie. F1/F2/F3 keys)");
+SETTING(BoolValue, bool, FixFullscreenAspect, "Options", true, "#Fixes fullscreen aspect ratio");
+
+SETTING(LongValue, s32, WindowX, "Window", -1, "#Moves window to X position");
+SETTING(LongValue, s32, WindowY, "Window", -1, "#Moves window to Y position");
+SETTING(BoolValue, bool, WindowOnTop, "Window", false, "#Set window on-top flag");
+
+SETTING(LongValue, u32, MulX, "ResHack", 0, "#Internal resolution X multiplier, recommended max: 8");
+SETTING(LongValue, u32, MulY, "ResHack", 0, "#Internal resolution Y multiplier, recommended max: 12");
+
+SETTING(LongValue, u32, xBRZScale, "xBRZ", 0, "#xBRZ scale, max 6");
+SETTING(LongValue, u32, SliceSize, "xBRZ", 8, "#Texture slice for scaler, different slices can provide better or worse perfomance, recommended 8");
+SETTING(BoolValue, bool, FastFBE, "xBRZ", true, "#Use nearest neighbour scaler for FBE, requires Standard setting for FBE!");
+SETTING(BoolValue, bool, ForceNearest, "xBRZ", false, "#Forces nearest neighbour scaler");
+SETTING(LongValue, u32, TextureCacheSize, "xBRZ", 128, "#Texture Cache size (in textures count!) for upscaled textures so texture is upscaled only once - fast!");
+
+SETTING(Value, std::string, Port1, "PadPlugin", "", "#Port1 pad plugin path");
+SETTING(Value, std::string, Port2, "PadPlugin", "", "#Port2 pad plugin path");

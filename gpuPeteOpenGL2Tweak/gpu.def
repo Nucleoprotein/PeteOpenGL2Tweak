@@ -1,0 +1,35 @@
+EXPORTS
+    ; Explicit exports can go here
+	PSEgetLibType=EXPORT_PSEgetLibType				@2
+	PSEgetLibName=EXPORT_PSEgetLibName				@3
+	PSEgetLibVersion=EXPORT_PSEgetLibVersion		@4
+	GPUinit=EXPORT_GPUinit							@5
+	GPUshutdown=EXPORT_GPUshutdown					@6
+	GPUopen=EXPORT_GPUopen							@7
+	GPUclose=EXPORT_GPUclose						@8
+	GPUconfigure=EXPORT_GPUconfigure				@9
+	GPUabout=EXPORT_GPUabout						@10
+	GPUtest=EXPORT_GPUtest							@11
+	GPUwriteData=EXPORT_GPUwriteData				@12
+	GPUwriteStatus=EXPORT_GPUwriteStatus			@13
+	GPUreadData=EXPORT_GPUreadData					@14
+	GPUreadStatus=EXPORT_GPUreadStatus				@15
+	GPUdmaChain=EXPORT_GPUdmaChain					@16
+	GPUgetMode=EXPORT_GPUgetMode					@17
+	GPUsetMode=EXPORT_GPUsetMode					@18
+	GPUupdateLace=EXPORT_GPUupdateLace				@19
+	GPUmakeSnapshot=EXPORT_GPUmakeSnapshot			@20
+    GPUwriteDataMem=EXPORT_GPUwriteDataMem			@23
+    GPUreadDataMem=EXPORT_GPUreadDataMem			@24
+	GPUdisplayFlags=EXPORT_GPUdisplayFlags			@25
+	GPUfreeze=EXPORT_GPUfreeze						@26
+	GPUgetScreenPic=EXPORT_GPUgetScreenPic			@27
+	GPUshowScreenPic=EXPORT_GPUshowScreenPic		@28
+    GPUcursor=EXPORT_GPUcursor						@29
+
+    GPUsetfix=EXPORT_GPUsetfix						@63
+	GPUsetframelimit=EXPORT_GPUsetframelimit		@64
+	GPUvisualVibration=EXPORT_GPUvisualVibration	@65
+
+	GPUaddVertex=EXPORT_GPUaddVertex				@128
+
