@@ -26,18 +26,18 @@ public:
     void ResHack(u32 _x, u32 _y);
 	void FixFullscreenAspect();
 	void ApplyWindowProc(HWND hWnd);
-	void TextureScale(u32 scale, u32 slice, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
+	void EnableTextureScaler(u32 scale, u32 slice, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
 
 private:
-    static GTEData m_gtedata;
-	static u32 m_scale;
-	static u32 m_slice;
+    GTEData m_gtedata;
+	u32 m_scale;
+	u32 m_slice;
 
-	static bool m_force_nearest;
-	static bool m_fast_fbe;
-	static u32 m_texture_cache_size;
+	bool m_force_nearest;
+	bool m_fast_fbe;
+	u32 m_texture_cache_size;
 
-	static void fix_offsets(s32 count);
+	void fix_offsets(s32 count);
 
 	static BOOL __cdecl offset3(void);
 	static tOffset ooffset3;
@@ -71,10 +71,10 @@ private:
 	u32* locWinSize;
 	BOOL* locWindowned;
 
-	static float* locFPS;
-	static u32* locFBE;
+	float* locFPS;
+	u32* locFBE;
 
-	static WNDPROC oldWndProc;
+	WNDPROC oldWndProc;
 	static LRESULT CALLBACK TweakWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	static void(APIENTRY* oglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
@@ -86,14 +86,8 @@ private:
 	static void(APIENTRY* oglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 	static void APIENTRY Hook_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
-	static void ScaleXBRZ(size_t factor, const void* src, void* trg, int srcWidth, int srcHeight, xbrz::ColorFormat format);
+	std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight);
 
-	//static u8* m_TexBuf;
-	static std::vector<u32> m_TexBuf;
-
-	typedef std::list<u32> timestamp_to_key_type;
-	typedef std::unordered_map<u32, std::vector<u32>> key_to_value_type;
-
-	static timestamp_to_key_type m_TextureCacheTimestamp;
-	static key_to_value_type m_TextureCache;
+	std::list<u32> m_TextureCacheTimestamp;
+	std::unordered_map<u32, std::vector<u32>> m_TextureCache;
 };

@@ -10,28 +10,14 @@
 #include "xxhash.h"
 
 #include "xBRZ\xbrz.h"
+#include "deposterize.h"
 #include <ppl.h>
 
-GPUPatches::timestamp_to_key_type GPUPatches::m_TextureCacheTimestamp;
-GPUPatches::key_to_value_type GPUPatches::m_TextureCache;
-
-GPUPatches::GTEData GPUPatches::m_gtedata;
-
-WNDPROC GPUPatches::oldWndProc = nullptr;
-
-std::vector<u32> GPUPatches::m_TexBuf;
-u32 GPUPatches::m_scale;
-u32 GPUPatches::m_slice;
-
-bool GPUPatches::m_force_nearest = false;
-bool GPUPatches::m_fast_fbe = false;
-u32 GPUPatches::m_texture_cache_size = 0;
-
-float* GPUPatches::locFPS = 0;
-u32* GPUPatches::locFBE = 0;
+static GPUPatches* s_pGPUPatches;
 
 GPUPatches::GPUPatches()
 {
+	s_pGPUPatches = this;
 
 	m_gtedata.lx[0] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A08);
 	m_gtedata.lx[1] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A0A);
@@ -163,7 +149,7 @@ GPUPatches::tOffset GPUPatches::ooffset3;
 BOOL __cdecl GPUPatches::offset3(void)
 {
 	BOOL ret = ooffset3();
-	fix_offsets(3);
+	s_pGPUPatches->fix_offsets(3);
 	return ret;
 }
 
@@ -171,14 +157,14 @@ GPUPatches::tOffset GPUPatches::ooffset4;
 BOOL __cdecl GPUPatches::offset4(void)
 {
 	BOOL ret = ooffset4();
-	fix_offsets(4);
+	s_pGPUPatches->fix_offsets(4);
 	return ret;
 }
 
 GPUPatches::tOffset GPUPatches::ooffsetST;
 BOOL __cdecl GPUPatches::offsetST(void)
 {
-	fix_offsets(4);
+	s_pGPUPatches->fix_offsets(4);
 	BOOL ret = ooffsetST();
 	return ret;
 }
@@ -187,7 +173,7 @@ GPUPatches::tOffset GPUPatches::ooffsetline;
 BOOL __cdecl GPUPatches::offsetline(void)
 {
 	BOOL ret = ooffsetline();
-	fix_offsets(4);
+	s_pGPUPatches->fix_offsets(4);
 	return ret;
 }
 
@@ -280,7 +266,7 @@ LRESULT CALLBACK GPUPatches::TweakWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam
 
 	}
 
-	return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
+	return CallWindowProc(s_pGPUPatches->oldWndProc, hWnd, uMsg, wParam, lParam);
 }
 
 void GPUPatches::ApplyWindowProc(HWND hWnd)
@@ -302,7 +288,7 @@ void APIENTRY GPUPatches::Hook_glCopyTexSubImage2D(GLenum target, GLint level, G
 		return oglCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
 	}
 
-	return oglCopyTexSubImage2D(target, level, xoffset * m_scale, yoffset * m_scale, x, y, width * m_scale, height * m_scale);
+	return oglCopyTexSubImage2D(target, level, xoffset * s_pGPUPatches->m_scale, yoffset * s_pGPUPatches->m_scale, x, y, width * s_pGPUPatches->m_scale, height * s_pGPUPatches->m_scale);
 }
 
 void (APIENTRY* GPUPatches::oglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
@@ -316,8 +302,8 @@ void APIENTRY GPUPatches::Hook_glTexSubImage2D(GLenum target, GLint level, GLint
 
 	if (format == GL_RGBA)
 	{
-		ScaleXBRZ(m_scale, pixels, &m_TexBuf[0], width, height, xbrz::ColorFormat::ARGB);
-		return oglTexSubImage2D(target, level, xoffset * m_scale, yoffset * m_scale, width * m_scale, height * m_scale, format, type, &m_TexBuf[0]);
+		std::vector<u32> textureBuffer = s_pGPUPatches->ScaleTexture((u32*)pixels, width, height);
+		return oglTexSubImage2D(target, level, xoffset * s_pGPUPatches->m_scale, yoffset * s_pGPUPatches->m_scale, width * s_pGPUPatches->m_scale, height * s_pGPUPatches->m_scale, format, type, textureBuffer.data());
 	}
 	return oglTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 }
@@ -336,48 +322,60 @@ void APIENTRY GPUPatches::Hook_glTexImage2D(GLenum target, GLint level, GLint in
 
 	if (format == GL_RGBA)
 	{
-		ScaleXBRZ(m_scale, pixels, &m_TexBuf[0], width, height, xbrz::ColorFormat::ARGB);
-		return oglTexImage2D(target, level, internalformat, width * m_scale, height * m_scale, border, format, type, &m_TexBuf[0]);
+		std::vector<u32> textureBuffer = s_pGPUPatches->ScaleTexture((u32*)pixels, width, height);
+		return oglTexImage2D(target, level, internalformat, width * s_pGPUPatches->m_scale, height * s_pGPUPatches->m_scale, border, format, type, textureBuffer.data());
 	}
 	return oglTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 }
 
-void GPUPatches::ScaleXBRZ(size_t factor, const void* src, void* trg, int srcWidth, int srcHeight, xbrz::ColorFormat format)
+std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight)
 {
-	u32* target = (u32*)trg;
-
-	u32 texture_hash = XXH32(src, srcWidth * srcHeight * sizeof(u32), 0);
+	u32 texture_hash = XXH32(source, srcWidth * srcHeight * sizeof(u32), 0);
 	//PLUGINLOG("texture_hash: %llu", texture_hash);
 
 	if (m_texture_cache_size > 0 && texture_hash > 0 && !m_TextureCache[texture_hash].empty())
 	{
-		//PLUGINLOG("cache hit, hash: %llu", texture_hash);
-		memcpy(target, &m_TextureCache[texture_hash][0], srcHeight * factor * srcWidth * factor * sizeof(u32));
-		return;
+		return m_TextureCache[texture_hash];
 	}
 
+	std::vector<u32> textureBuffer(srcWidth * m_scale * srcHeight * m_scale);
 
 	if ((m_fast_fbe && *locFBE) || m_force_nearest)
 	{
-		concurrency::parallel_for(0, srcHeight, (int)m_slice, [&](const int& i)
+		concurrency::parallel_for(0, (int)srcHeight, (int)m_slice, [&](const int& i)
 		{
-			xbrz::nearestNeighborScale((u32*)src, srcWidth, srcHeight, srcWidth * sizeof(u32), (u32*)trg,
-				srcWidth * factor, srcHeight * factor, srcWidth * factor * sizeof(u32), xbrz::SliceType::NN_SCALE_SLICE_SOURCE, i, i + m_slice);
+			xbrz::nearestNeighborScale(source, srcWidth, srcHeight, srcWidth * sizeof(u32), textureBuffer.data(),
+				srcWidth * m_scale, srcHeight * m_scale, srcWidth * m_scale * sizeof(u32), xbrz::SliceType::NN_SCALE_SLICE_SOURCE, i, i + m_slice);
 		}
 		);
 	}
 	else
 	{
-		concurrency::parallel_for(0, srcHeight, (int)m_slice, [&](const int& i)
+		if (context.GetConfig().GetDeposterize())
 		{
-			xbrz::scale(factor, (u32*)src, (u32*)target, srcWidth, srcHeight, format, xbrz::ScalerCfg(), i, i + m_slice);
+			std::vector<u32> deposterizeBuffer(srcWidth * srcHeight);
+			DePosterize(source, deposterizeBuffer.data(), srcWidth, srcHeight);
+			source = deposterizeBuffer.data();
+
+			concurrency::parallel_for(0, (int)srcHeight, (int)m_slice, [&](const int& i)
+			{
+				xbrz::scale(m_scale, source, textureBuffer.data(), srcWidth, srcHeight, xbrz::ColorFormat::ARGB, xbrz::ScalerCfg(), i, i + m_slice);
+			}
+			);
 		}
-		);
+		else
+		{
+			concurrency::parallel_for(0, (int)srcHeight, (int)m_slice, [&](const int& i)
+			{
+				xbrz::scale(m_scale, source, textureBuffer.data(), srcWidth, srcHeight, xbrz::ColorFormat::ARGB, xbrz::ScalerCfg(), i, i + m_slice);
+			}
+			);
+		}
 
 		if (m_texture_cache_size > 0 && texture_hash > 0)
 		{
 			m_TextureCacheTimestamp.push_back(texture_hash);
-			m_TextureCache[texture_hash] = std::vector<u32>(target, target + srcHeight * factor * srcWidth * factor);
+			m_TextureCache[texture_hash] = textureBuffer;
 
 			//PLUGINLOG("cache size: %lu", m_TextureCache.size());
 			//PLUGINLOG("cache time size: %lu", m_TextureCacheTimestamp.size());
@@ -390,9 +388,10 @@ void GPUPatches::ScaleXBRZ(size_t factor, const void* src, void* trg, int srcWid
 			}
 		}
 	}
+	return std::move(textureBuffer);
 }
 
-void GPUPatches::TextureScale(u32 scale, u32 slice, bool force_nearest, bool fast_fbe, u32 texture_cache_size)
+void GPUPatches::EnableTextureScaler(u32 scale, u32 slice, bool force_nearest, bool fast_fbe, u32 texture_cache_size)
 {
 	if (scale <= 1)
 		return;
@@ -407,8 +406,6 @@ void GPUPatches::TextureScale(u32 scale, u32 slice, bool force_nearest, bool fas
 		m_texture_cache_size = texture_cache_size;
 
 		PLUGINLOG("%ux%s Texture Filter, slice %u", scale, m_force_nearest ? " Nearest Neighbour" : "BRZ", slice);
-
-		m_TexBuf.resize(MAX_TEXTURE_X * m_scale * MAX_TEXTURE_Y * m_scale);
 
 		MH_CreateHook(glTexImage2D, Hook_glTexImage2D, reinterpret_cast<void**>(&oglTexImage2D));
 		MH_EnableHook(glTexImage2D);

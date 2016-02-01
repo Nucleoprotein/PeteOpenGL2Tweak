@@ -44,7 +44,7 @@ s32 Context::OnGPUinit()
 		m_gpupatches.GTEAccuracy();
 
 	u32 scale = clamp<u32>(m_config.GetxBRZScale(), 1, 6);
-	m_gpupatches.TextureScale(scale, m_config.GetSliceSize(), m_config.GetForceNearest(), m_config.GetFastFBE(), m_config.GetTextureCacheSize());
+	m_gpupatches.EnableTextureScaler(scale, m_config.GetSliceSize(), m_config.GetForceNearest(), m_config.GetFastFBE(), m_config.GetTextureCacheSize());
 
 	if (m_config.GetMulX() > 0 && m_config.GetMulY() > 0)
 		m_gpupatches.ResHack(m_config.GetMulX(), m_config.GetMulY());

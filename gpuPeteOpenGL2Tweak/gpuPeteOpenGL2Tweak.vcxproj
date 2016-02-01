@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\xxHash\xxhash.h" />
+    <ClInclude Include="deposterize.h" />
     <ClInclude Include="GPUPatches.h" />
     <ClInclude Include="gpuPeteOpenGL2Tweak.h" />
     <ClInclude Include="GPUPlugin.h" />

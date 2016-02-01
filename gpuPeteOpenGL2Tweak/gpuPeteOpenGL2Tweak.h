@@ -13,9 +13,9 @@ static const char *dllfilename2 = ".\\plugins\\gpuPeopsOpenGL2.dll";
 static const char *pecfilename = ".\\plugins\\gpupec.dll";
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 2
+#define VERSION_MINOR 3
 
-#define CONFIG_VERSION 22
+#define CONFIG_VERSION 230
 
 class Config : NonCopyable
 {

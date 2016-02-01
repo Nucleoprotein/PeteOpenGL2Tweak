@@ -5,7 +5,7 @@ SETTING(LongValue, s32, VSyncInterval, "Options", 0, "#Enables VSync, paramater 
 SETTING(BoolValue, bool, HideCursor, "Options", false, "#Hides cursor in window");
 SETTING(BoolValue, bool, UsePEC, "Options", false, "#Use Playstation Emulation Cheater plugin");
 SETTING(BoolValue, bool, HardcoreMode, "Options", false, "#Disables PEC and emulator save states (ie. F1/F2/F3 keys)");
-SETTING(BoolValue, bool, FixFullscreenAspect, "Options", true, "#Fixes fullscreen aspect ratio");
+SETTING(BoolValue, bool, FixFullscreenAspect, "Options", false, "#Fixes fullscreen aspect ratio");
 
 SETTING(LongValue, s32, WindowX, "Window", -1, "#Moves window to X position");
 SETTING(LongValue, s32, WindowY, "Window", -1, "#Moves window to Y position");
@@ -16,6 +16,7 @@ SETTING(LongValue, u32, MulY, "ResHack", 0, "#Internal resolution Y multiplier, 
 
 SETTING(LongValue, u32, xBRZScale, "xBRZ", 0, "#xBRZ scale, max 6");
 SETTING(LongValue, u32, SliceSize, "xBRZ", 8, "#Texture slice for scaler, different slices can provide better or worse perfomance, recommended 8");
+SETTING(BoolValue, bool, Deposterize, "xBRZ", false, "#Deposterize");
 SETTING(BoolValue, bool, FastFBE, "xBRZ", true, "#Use nearest neighbour scaler for FBE, requires Standard setting for FBE!");
 SETTING(BoolValue, bool, ForceNearest, "xBRZ", false, "#Forces nearest neighbour scaler");
 SETTING(LongValue, u32, TextureCacheSize, "xBRZ", 128, "#Texture Cache size (in textures count!) for upscaled textures so texture is upscaled only once - fast!");

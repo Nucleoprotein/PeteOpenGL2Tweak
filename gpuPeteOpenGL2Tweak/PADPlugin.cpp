@@ -46,13 +46,13 @@ const PADPlugin::ePSXeHackData* PADPlugin::DetectEmuVersion()
     IMAGE_NT_HEADERS *pNtHdr = SimpeGetImageNtHeader(context.GetEmulatorMemory());
     if (pNtHdr)
     {
-        for (auto& data : epsxedata)
+        for (auto && data : epsxedata)
         {
             // Using TimeDateStamp works for UPXed and unpacked executables !
             if (data.check == pNtHdr->FileHeader.TimeDateStamp)
             {
                 PLUGINLOG("ePSXePadSupport: Detected supported ePSXe");
-                return &(data);
+                return &data;
             }
         }
     }
