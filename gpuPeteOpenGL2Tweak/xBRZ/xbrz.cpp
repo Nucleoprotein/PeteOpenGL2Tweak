@@ -175,31 +175,34 @@ double distRGB(uint32_t pix1, uint32_t pix2)
 }
 
 
+#if 0
 inline
 double distYCbCr(uint32_t pix1, uint32_t pix2, double lumaWeight)
 {
-    //http://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion
-    //YCbCr conversion is a matrix multiplication => take advantage of linearity by subtracting first!
-    const int r_diff = static_cast<int>(getRed  (pix1)) - getRed  (pix2); //we may delay division by 255 to after matrix multiplication
-    const int g_diff = static_cast<int>(getGreen(pix1)) - getGreen(pix2); //
-    const int b_diff = static_cast<int>(getBlue (pix1)) - getBlue (pix2); //substraction for int is noticeable faster than for double!
+	//http://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion
+	//YCbCr conversion is a matrix multiplication => take advantage of linearity by subtracting first!
+	const int r_diff = static_cast<int>(getRed(pix1)) - getRed(pix2); //we may delay division by 255 to after matrix multiplication
+	const int g_diff = static_cast<int>(getGreen(pix1)) - getGreen(pix2); //
+	const int b_diff = static_cast<int>(getBlue(pix1)) - getBlue(pix2); //substraction for int is noticeable faster than for double!
 
-    //const double k_b = 0.0722; //ITU-R BT.709 conversion
-    //const double k_r = 0.2126; //
-    const double k_b = 0.0593; //ITU-R BT.2020 conversion
-    const double k_r = 0.2627; //
-    const double k_g = 1 - k_b - k_r;
+	//const double k_b = 0.0722; //ITU-R BT.709 conversion
+	//const double k_r = 0.2126; //
+	const double k_b = 0.0593; //ITU-R BT.2020 conversion
+	const double k_r = 0.2627; //
+	const double k_g = 1 - k_b - k_r;
 
-    const double scale_b = 0.5 / (1 - k_b);
-    const double scale_r = 0.5 / (1 - k_r);
+	const double scale_b = 0.5 / (1 - k_b);
+	const double scale_r = 0.5 / (1 - k_r);
 
-    const double y   = k_r * r_diff + k_g * g_diff + k_b * b_diff; //[!], analog YCbCr!
-    const double c_b = scale_b * (b_diff - y);
-    const double c_r = scale_r * (r_diff - y);
+	const double y = k_r * r_diff + k_g * g_diff + k_b * b_diff; //[!], analog YCbCr!
+	const double c_b = scale_b * (b_diff - y);
+	const double c_r = scale_r * (r_diff - y);
 
-    //we skip division by 255 to have similar range like other distance functions
-    return std::sqrt(square(lumaWeight * y) + square(c_b) + square(c_r));
+	//we skip division by 255 to have similar range like other distance functions
+	return std::sqrt(square(lumaWeight * y) + square(c_b) + square(c_r));
 }
+#endif // 0
+
 
 
 struct DistYCbCrBuffer //30% perf boost compared to distYCbCr()!
@@ -207,6 +210,9 @@ struct DistYCbCrBuffer //30% perf boost compared to distYCbCr()!
 public:
     static double dist(uint32_t pix1, uint32_t pix2)
     {
+#if defined _MSC_VER && _MSC_VER < 1900
+#error function scope static initialization is not yet thread-safe!
+#endif
         static const DistYCbCrBuffer inst;
         return inst.distImpl(pix1, pix2);
     }

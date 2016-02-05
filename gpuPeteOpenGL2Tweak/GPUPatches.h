@@ -1,7 +1,7 @@
 #pragma once
 
-#define MAX_TEXTURE_X 512
-#define MAX_TEXTURE_Y 512
+#define MAX_TEXTURE_X 256
+#define MAX_TEXTURE_Y 256
 
 class GPUPatches
 {
@@ -26,12 +26,12 @@ public:
     void ResHack(u32 _x, u32 _y);
 	void FixFullscreenAspect();
 	void ApplyWindowProc(HWND hWnd);
-	void EnableTextureScaler(u32 scale, u32 slice, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
+	void EnableTextureScaler(u32 scale, u32 m_batch_size, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
 
 private:
     GTEData m_gtedata;
 	u32 m_scale;
-	u32 m_slice;
+	u32 m_batch_size;
 
 	bool m_force_nearest;
 	bool m_fast_fbe;

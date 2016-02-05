@@ -33,7 +33,7 @@ void GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 	{
 		gteCoords[sy + 0x800][sx + 0x800].x = fx / (std::numeric_limits<u16>::max() * 1.0f);
 		gteCoords[sy + 0x800][sx + 0x800].y = fy / (std::numeric_limits<u16>::max() * 1.0f);
-		gteCoords[sy + 0x800][sx + 0x800].z = fz / (std::numeric_limits<u16>::max() * 1.0f);
+		//gteCoords[sy + 0x800][sx + 0x800].z = fz / (std::numeric_limits<u16>::max() * 1.0f);
 	}
 }
 
@@ -67,7 +67,7 @@ bool getGteVertex(s16 sx, s16 sy, OGLVertexTag* vertex)
 		{
 			vertex->x = gteCoords[sy + 0x800][sx + 0x800].x;
 			vertex->y = gteCoords[sy + 0x800][sx + 0x800].y;
-			vertex->z = gteCoords[sy + 0x800][sx + 0x800].z;
+			//vertex->z = gteCoords[sy + 0x800][sx + 0x800].z;
 
 			return true;
 		}
