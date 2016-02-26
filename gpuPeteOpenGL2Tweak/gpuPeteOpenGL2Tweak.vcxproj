@@ -15,7 +15,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>gpuPeteOpenGL2Tweak</RootNamespace>
     <ProjectName>gpuPeteOpenGL2Tweak</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -77,7 +77,6 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -98,7 +97,6 @@
     <ClInclude Include="gpuPeteOpenGL2Tweak.h" />
     <ClInclude Include="GPUPlugin.h" />
     <ClInclude Include="gte_accuracy.h" />
-    <ClInclude Include="PADPlugin.h" />
     <ClInclude Include="psemu_plugin_defs.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SafeWrite.h" />
@@ -109,7 +107,6 @@
     <ClCompile Include="..\xxHash\xxhash.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PADPlugin.cpp" />
     <ClCompile Include="gpuPeteOpenGL2Tweak.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -139,7 +136,7 @@
     <ProjectReference Include="..\glew\build\vc12\glew_static.vcxproj">
       <Project>{664e6f0d-6784-4760-9565-d54f8eb1edf4}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\MinHook\build\VC12\libMinHook.vcxproj">
+    <ProjectReference Include="..\MinHook\build\VC14\libMinHook.vcxproj">
       <Project>{f142a341-5ee0-442d-a15f-98ae9b48dbae}</Project>
     </ProjectReference>
   </ItemGroup>

@@ -39,9 +39,6 @@
     <ClInclude Include="GPUPlugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PADPlugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GPUPatches.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,9 +66,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gpuPeteOpenGL2Tweak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PADPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GPUPatches.cpp">

@@ -20,25 +20,15 @@
 #ifndef _GTE_ACCURACY_H_
 #define _GTE_ACCURACY_H_
 
-typedef struct OGLVertexTag
+struct OGLVertex
 {
 	GLfloat x;
 	GLfloat y;
-	GLfloat z;
-
-	GLfloat sow;
-	GLfloat tow;
-
-	union COLTAG
-	{
-		unsigned char col[4];
-		unsigned int lcol;
-	} c;
-} OGLVertex;
+	//GLfloat z;
+};
 
 extern void resetGteVertices();
-extern bool checkGteVertex(s16 sx, s16 sy);
-extern bool getGteVertex(s16 sx, s16 sy, OGLVertexTag* vertex);
+extern bool getGteVertex(s16 sx, s16 sy, OGLVertex* vertex);
 extern void GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
 
 #endif // _GTE_ACCURACY_H_

@@ -71,7 +71,7 @@ typedef struct _HOOK_ENTRY
     BOOL   isEnabled   : 1;     // Enabled.
     BOOL   queueEnable : 1;     // Queued for enabling/disabling when != isEnabled.
 
-    UINT   nIP : 3;             // Count of the instruction boundaries.
+    UINT   nIP : 4;             // Count of the instruction boundaries.
     UINT8  oldIPs[8];           // Instruction boundaries of the target function.
     UINT8  newIPs[8];           // Instruction boundaries of the trampoline function.
 } HOOK_ENTRY, *PHOOK_ENTRY;
@@ -442,6 +442,9 @@ static VOID EnterSpinLock(VOID)
     // Wait until the flag is FALSE.
     while (InterlockedCompareExchange(&g_isLocked, TRUE, FALSE) != FALSE)
     {
+        // No need to generate a memory barrier here, since InterlockedCompareExchange()
+        // generates a full memory barrier itself.
+
         // Prevent the loop from being too busy.
         if (spinCount < 32)
             Sleep(0);
@@ -455,6 +458,9 @@ static VOID EnterSpinLock(VOID)
 //-------------------------------------------------------------------------
 static VOID LeaveSpinLock(VOID)
 {
+    // No need to generate a memory barrier here, since InterlockedExchange()
+    // generates a full memory barrier itself.
+
     InterlockedExchange(&g_isLocked, FALSE);
 }
 

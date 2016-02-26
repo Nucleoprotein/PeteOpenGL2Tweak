@@ -120,7 +120,7 @@ void CALLBACK EXPORT_GPUsetMode(u32 gdata)
 void CALLBACK EXPORT_GPUupdateLace()
 {
     EXPORT_LOG(__FUNCTION__);
-	return GPUPlugin::Get().GPUupdateLace();
+	return context.OnGPUupdateLace();
 }
 
 s32 CALLBACK EXPORT_GPUdmaChain(u32 * baseAddrL, u32 addr)

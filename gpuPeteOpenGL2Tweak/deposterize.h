@@ -69,11 +69,3 @@ void deposterizeV(const u32* data, u32* out, int w, int h, int l, int u) {
 	}
 }
 
-static
-void DePosterize(const u32* source, u32* dest, int width, int height) {
-	std::vector<u32> buf(width*height);
-	deposterizeH(source, buf.data(), width, 0, height);
-	deposterizeV(buf.data(), dest, width, height, 0, height);
-	deposterizeH(dest, buf.data(), width, 0, height);
-	deposterizeV(buf.data(), dest, width, height, 0, height);
-}

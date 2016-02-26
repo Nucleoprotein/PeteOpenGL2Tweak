@@ -22,27 +22,32 @@
 #include <math.h>
 
 #include "gte_accuracy.h"
+#include "gpuPeteOpenGL2Tweak.h"
 
 static const size_t COORDS_ARRAY_SIZE = 0x800 * 2;
 
-std::array<std::array<OGLVertexTag, COORDS_ARRAY_SIZE>, COORDS_ARRAY_SIZE> gteCoords;
+std::array<std::array<OGLVertex, COORDS_ARRAY_SIZE>, COORDS_ARRAY_SIZE> gteCoords;
+
 void GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 {
 	if (sx >= -0x800 && sx <= 0x7ff &&
 		sy >= -0x800 && sy <= 0x7ff)
 	{
-		gteCoords[sy + 0x800][sx + 0x800].x = fx / (std::numeric_limits<u16>::max() * 1.0f);
-		gteCoords[sy + 0x800][sx + 0x800].y = fy / (std::numeric_limits<u16>::max() * 1.0f);
-		//gteCoords[sy + 0x800][sx + 0x800].z = fz / (std::numeric_limits<u16>::max() * 1.0f);
+		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
+		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
+		//gteCoords[sy + 0x800][sx + 0x800].z = fz / 65536.0f;
+
+		//PLUGINLOG("%dx%d %lldx%lld %fx%f", sx, sy, fx, fy, gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y);
 	}
 }
 
 void resetGteVertices()
 {
-	gteCoords.fill(std::array<OGLVertexTag, COORDS_ARRAY_SIZE>());
+	//gteCoords.fill(std::array<OGLVertex, COORDS_ARRAY_SIZE>());
+	memset(gteCoords.data(), 0, COORDS_ARRAY_SIZE * COORDS_ARRAY_SIZE * sizeof(OGLVertex));
 }
 
-bool checkGteVertex(s16 sx, s16 sy)
+bool getGteVertex(s16 sx, s16 sy, OGLVertex* vertex)
 {
 	if (sx >= -0x800 && sx <= 0x7ff &&
 		sy >= -0x800 && sy <= 0x7ff)
@@ -50,21 +55,7 @@ bool checkGteVertex(s16 sx, s16 sy)
 		if ((std::fabs(gteCoords[sy + 0x800][sx + 0x800].x - sx) < 1.0f) &&
 			(std::fabs(gteCoords[sy + 0x800][sx + 0x800].y - sy) < 1.0f))
 		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool getGteVertex(s16 sx, s16 sy, OGLVertexTag* vertex)
-{
-	if (sx >= -0x800 && sx <= 0x7ff &&
-		sy >= -0x800 && sy <= 0x7ff)
-	{
-		if ((std::fabs(gteCoords[sy + 0x800][sx + 0x800].x - sx) < 1.0f) &&
-			(std::fabs(gteCoords[sy + 0x800][sx + 0x800].y - sy) < 1.0f))
-		{
+			//PLUGINLOG("%fx%f %dx%d", gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y, sx, sy);
 			vertex->x = gteCoords[sy + 0x800][sx + 0x800].x;
 			vertex->y = gteCoords[sy + 0x800][sx + 0x800].y;
 			//vertex->z = gteCoords[sy + 0x800][sx + 0x800].z;

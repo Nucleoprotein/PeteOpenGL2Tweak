@@ -1,12 +1,13 @@
 #pragma once
 
-#define MAX_TEXTURE_X 256
-#define MAX_TEXTURE_Y 256
+#define MAX_TEXTURE_WIDTH 256
+#define MAX_TEXTURE_HEIGHT 256
 
 class GPUPatches
 {
 public:
     typedef BOOL(__cdecl* tOffset)(void);
+	typedef void(__cdecl* tprimMoveImage)(unsigned char * baseAddr);
 
     GPUPatches();
     ~GPUPatches();
@@ -28,6 +29,8 @@ public:
 	void ApplyWindowProc(HWND hWnd);
 	void EnableTextureScaler(u32 scale, u32 m_batch_size, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
 
+	void ResetGTECache();
+
 private:
     GTEData m_gtedata;
 	u32 m_scale;
@@ -36,6 +39,7 @@ private:
 	bool m_force_nearest;
 	bool m_fast_fbe;
 	u32 m_texture_cache_size;
+	u32 m_max_slices;
 
 	void fix_offsets(s32 count);
 
@@ -45,13 +49,10 @@ private:
 	static BOOL __cdecl offset4(void);
     static tOffset ooffset4;
 
-	static BOOL __cdecl offsetST(void);
-	static tOffset ooffsetST;
+	static void __cdecl primMoveImage(unsigned char * baseAddr);
+	static tprimMoveImage oprimMoveImage;
 
-	static BOOL __cdecl offsetline(void);
-	static tOffset ooffsetline;
-
-	u32* locVRamSize;
+	int* locVRamSize;
 	typedef u32(__cdecl* fCheckTextureMemory)();
 	fCheckTextureMemory CheckTextureMemory;
     int GetVideoMemoryAMD();
@@ -71,7 +72,7 @@ private:
 	u32* locWinSize;
 	BOOL* locWindowned;
 
-	float* locFPS;
+	//float* locFPS;
 	u32* locFBE;
 
 	WNDPROC oldWndProc;
@@ -83,10 +84,9 @@ private:
 	static void(APIENTRY* oglTexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels);
 	static void APIENTRY Hook_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels);
 
-	static void(APIENTRY* oglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-	static void APIENTRY Hook_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-
-	std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight);
+	xbrz::ScalerCfg m_ScalerCfg;
+	std::vector<u32> DePosterize(const u32* source, int width, int height);
+	std::vector<u32> ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight);
 
 	std::list<u32> m_TextureCacheTimestamp;
 	std::unordered_map<u32, std::vector<u32>> m_TextureCache;

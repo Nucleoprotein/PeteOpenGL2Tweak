@@ -1,7 +1,6 @@
 
 #include "gte_accuracy.h"
 #include "GPUPatches.h"
-#include "PADPlugin.h"
 
 #define PLUGINLOG(format, ...) printf("TWEAK: " format "\n", __VA_ARGS__)
 
@@ -13,9 +12,9 @@ static const char *dllfilename2 = ".\\plugins\\gpuPeopsOpenGL2.dll";
 static const char *pecfilename = ".\\plugins\\gpupec.dll";
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 3
+#define VERSION_MINOR 4
 
-#define CONFIG_VERSION 230
+#define CONFIG_VERSION 240
 
 class Config : NonCopyable
 {
@@ -66,16 +65,14 @@ public:
 
 	Config& GetConfig(){ return m_config; };
 	GPUPatches& GetPatches(){ return m_gpupatches; };
-	PADPlugin& GetPadPlugin(){ return m_padplugin; };
 
     s32 OnGPUinit();
     s32 OnGPUshutdown();
     s32 OnGPUclose();
     void OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
+	void OnGPUupdateLace(void);
 
     s32 OnGPUtest();
-
-    void LoadPad();
 
     void* GetEmulatorMemory(u32 offset = 0)
     {
@@ -92,10 +89,26 @@ public:
 private:
     Config m_config;
     GPUPatches m_gpupatches;
-    PADPlugin m_padplugin;
 
 	static s32(CALLBACK* oGPUopen)(HWND hwndGPU);
 	static s32 CALLBACK Hook_GPUopen(HWND hwndGPU);
 };
+
+template<typename N>
+void CreateHookF(LPVOID pTarget, LPVOID pDetour, N* ppOriginal, const char* pTargetName)
+{
+	if (*ppOriginal) return;
+	MH_STATUS status = MH_CreateHook(pTarget, pDetour, reinterpret_cast<void**>(ppOriginal));
+	PLUGINLOG("CreateHook %s status %s", pTargetName, MH_StatusToString(status));
+}
+
+inline void EnableHookF(LPVOID pTarget, const char* pTargetName)
+{
+	MH_STATUS status = MH_EnableHook(pTarget);
+	PLUGINLOG("EnableHook %s status %s", pTargetName, MH_StatusToString(status));
+}
+
+#define CreateHook(pTarget, pDetour, ppOrgiginal) CreateHookF(pTarget, pDetour, ppOrgiginal, #pTarget)
+#define EnableHook(pTarget) EnableHookF(pTarget, #pTarget)
 
 static Context& context = Context::instance;
