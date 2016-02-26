@@ -23,7 +23,7 @@ s32 Context::OnGPUinit()
 
 	PLUGINLOG("Pete OpenGL2 Tweak Enabled");
 	if (m_config.GetGTEAccuracy())
-		m_gpupatches.GTEAccuracy();
+		m_gpupatches.EnableGTEAccuracy();
 
 	u32 scale = clamp<u32>(m_config.GetxBRZScale(), 1, 6);
 	m_gpupatches.EnableTextureScaler(scale, m_config.GetBatchSize(), m_config.GetForceNearest(), m_config.GetFastFBE(), m_config.GetTextureCacheSize());
@@ -63,9 +63,6 @@ s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
 	if (context.GetConfig().GetVSyncInterval())
 		context.GetPatches().EnableVsync(context.GetConfig().GetVSyncInterval());
 
-	if (context.GetConfig().GetGTEAccuracy())
-		resetGteVertices();
-
 	if (context.GetConfig().GetHideCursor())
 		while (ShowCursor(FALSE) > -1);
 
@@ -91,11 +88,11 @@ s32 Context::OnGPUtest()
 	return GPUPlugin::Get().GPUtest();
 }
 
-void Context::OnGPUupdateLace(void)
+void Context::OnGPUreadDataMem(u32* pMem, s32 iSize)
 {
-	if (m_config.GetGTECacheClear())
+	if (m_config.GetGTEAccuracy() && m_config.GetGTECacheClear())
 		m_gpupatches.ResetGTECache();
-	return GPUPlugin::Get().GPUupdateLace();
+	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
 }
 
 void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
@@ -106,7 +103,12 @@ void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 		PLUGINLOG("GTE Accuracy Hack Enabled");
 	});
 
-	//PLUGINLOG("GPUaddVertex: sx = %hu sy = %hu fx = %llu fy = %llu fz = %llu", sx, sy, fx, fy, fz);
 	if (m_config.GetGTEAccuracy())
-		return GPUaddVertex(sx, sy, fx, fy, fz);
+	{
+		GTEAccuracy& gteacc = m_gpupatches.GetGTEAccuracy();
+		//PLUGINLOG("GPUaddVertex: sx = %hu sy = %hu fx = %llu fy = %llu fz = %llu", sx, sy, fx, fy, fz);
+		return gteacc.set(sx, sy, fx, fy, fz);
+	}
+
+
 }

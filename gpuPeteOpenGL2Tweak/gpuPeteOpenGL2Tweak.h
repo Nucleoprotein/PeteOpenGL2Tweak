@@ -70,7 +70,7 @@ public:
     s32 OnGPUshutdown();
     s32 OnGPUclose();
     void OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
-	void OnGPUupdateLace(void);
+	void OnGPUreadDataMem(u32* pMem, s32 iSize);
 
     s32 OnGPUtest();
 

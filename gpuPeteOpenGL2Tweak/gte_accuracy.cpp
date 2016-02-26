@@ -1,4 +1,5 @@
 /***************************************************************************
+ *   Copyright (C) 2015 by tapcio                                          *
  *   Copyright (C) 2011 by Blade_Arma                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,6 +18,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
+ // Orginal code by Blade_Arma, additional fixes and conversion to C++ class by tapcio
+
 #include "stdafx.h"
 
 #include <math.h>
@@ -24,30 +27,18 @@
 #include "gte_accuracy.h"
 #include "gpuPeteOpenGL2Tweak.h"
 
-static const size_t COORDS_ARRAY_SIZE = 0x800 * 2;
-
-std::array<std::array<OGLVertex, COORDS_ARRAY_SIZE>, COORDS_ARRAY_SIZE> gteCoords;
-
-void GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
+void GTEAccuracy::clear()
 {
-	if (sx >= -0x800 && sx <= 0x7ff &&
-		sy >= -0x800 && sy <= 0x7ff)
+	if (dirty)
 	{
-		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
-		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
-		//gteCoords[sy + 0x800][sx + 0x800].z = fz / 65536.0f;
-
-		//PLUGINLOG("%dx%d %lldx%lld %fx%f", sx, sy, fx, fy, gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y);
+		//gteCoords.fill(std::array<OGLVertex, COORDS_ARRAY_SIZE>());
+		// memset is faster 
+		memset(gteCoords.data(), 0, COORDS_ARRAY_SIZE * COORDS_ARRAY_SIZE * sizeof(GTEVertex));
+		dirty = false;
 	}
 }
 
-void resetGteVertices()
-{
-	//gteCoords.fill(std::array<OGLVertex, COORDS_ARRAY_SIZE>());
-	memset(gteCoords.data(), 0, COORDS_ARRAY_SIZE * COORDS_ARRAY_SIZE * sizeof(OGLVertex));
-}
-
-bool getGteVertex(s16 sx, s16 sy, OGLVertex* vertex)
+bool GTEAccuracy::get(s16 sx, s16 sy, GTEVertex* vertex)
 {
 	if (sx >= -0x800 && sx <= 0x7ff &&
 		sy >= -0x800 && sy <= 0x7ff)
@@ -66,3 +57,21 @@ bool getGteVertex(s16 sx, s16 sy, OGLVertex* vertex)
 
 	return false;
 }
+
+void GTEAccuracy::set(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
+{
+	if (sx >= -0x800 && sx <= 0x7ff &&
+		sy >= -0x800 && sy <= 0x7ff)
+	{
+		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
+		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
+
+		dirty = true;
+
+		//gteCoords[sy + 0x800][sx + 0x800].z = fz / 65536.0f;
+
+		//PLUGINLOG("%dx%d %lldx%lld %fx%f", sx, sy, fx, fy, gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y);
+	}
+}
+
+

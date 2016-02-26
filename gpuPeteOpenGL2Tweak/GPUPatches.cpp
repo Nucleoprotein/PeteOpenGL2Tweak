@@ -29,10 +29,10 @@ GPUPatches::GPUPatches()
 	m_gtedata.ly[2] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A14);
 	m_gtedata.ly[3] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A16);
 
-	m_gtedata.vertex[0] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052220);
-	m_gtedata.vertex[1] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052238);
-	m_gtedata.vertex[2] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052250);
-	m_gtedata.vertex[3] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052268);
+	m_gtedata.vertex[0] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052220);
+	m_gtedata.vertex[1] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052238);
+	m_gtedata.vertex[2] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052250);
+	m_gtedata.vertex[3] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052268);
 
 	m_gtedata.PSXDisplay_CumulOffset_x = (s16*)GPUPlugin::Get().GetPluginMem(0x00051FFC);
 	m_gtedata.PSXDisplay_CumulOffset_y = (s16*)GPUPlugin::Get().GetPluginMem(0x00051FFE);
@@ -133,9 +133,11 @@ void GPUPatches::fix_offsets(s32 count)
 	//PLUGINLOG("PSXDisplay_CumulOffset_x %d PSXDisplay_CumulOffset_y %d", *m_gtedata.PSXDisplay_CumulOffset_x, *m_gtedata.PSXDisplay_CumulOffset_y);
 
 	//for (int i = 0; i < count; ++i)
+
+	GTEAccuracy& gteacc = s_pGPUPatches->GetGTEAccuracy();
 	concurrency::parallel_for(0, count, 1, [&](const int& i)
 	{
-		if (getGteVertex(*m_gtedata.lx[i], *m_gtedata.ly[i], m_gtedata.vertex[i]))
+		if (gteacc.get(*m_gtedata.lx[i], *m_gtedata.ly[i], m_gtedata.vertex[i]))
 		{
 			m_gtedata.vertex[i]->x += *m_gtedata.PSXDisplay_CumulOffset_x;
 			m_gtedata.vertex[i]->y += *m_gtedata.PSXDisplay_CumulOffset_y;
@@ -159,15 +161,8 @@ BOOL __cdecl GPUPatches::offset4(void)
 	s_pGPUPatches->fix_offsets(4);
 	return ret;
 }
-GPUPatches::tprimMoveImage GPUPatches::oprimMoveImage;
-void __cdecl GPUPatches::primMoveImage(unsigned char * baseAddr)
-{
-	resetGteVertices();
-	PLUGINLOG("primMoveImage");
-	return oprimMoveImage(baseAddr);
-}
 
-void GPUPatches::GTEAccuracy()
+void GPUPatches::EnableGTEAccuracy()
 {
 	tOffset offset3 = (tOffset)GPUPlugin::Get().GetPluginMem(0x000041B0);
 	CreateHook(offset3, GPUPatches::offset3, &ooffset3);
@@ -177,11 +172,7 @@ void GPUPatches::GTEAccuracy()
 	CreateHook(offset4, GPUPatches::offset4, &ooffset4);
 	EnableHook(offset4);
 
-	//void primMoveImage(unsigned char * baseAddr)
-	//primMoveImage = .text:10017A50
-	//tprimMoveImage primMoveImage = (tprimMoveImage)GPUPlugin::Get().GetPluginMem(0x00017A50);
-	//CreateHook(primMoveImage, GPUPatches::primMoveImage, &oprimMoveImage);
-	//EnableHook(primMoveImage);
+	m_gteacc.clear();
 }
 
 void GPUPatches::ResHack(u32 _x, u32 _y)
@@ -293,20 +284,7 @@ std::vector<u32> GPUPatches::DePosterize(const u32* source, int width, int heigh
 
 void GPUPatches::ResetGTECache()
 {
-	static bool once = true;
-	if (*context.GetPatches().locFBE)
-	{
-		if (once)
-		{
-			PLUGINLOG("ResetGTECache");
-			resetGteVertices();
-			once = false;
-		}
-	}
-	else
-	{
-		once = true;
-	}
+	m_gteacc.clear();
 }
 
 std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight)

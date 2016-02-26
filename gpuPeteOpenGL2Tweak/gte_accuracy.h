@@ -1,4 +1,5 @@
 /***************************************************************************
+ *   Copyright (C) 2015 by tapcio                                          *
  *   Copyright (C) 2011 by Blade_Arma                                      *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,18 +18,30 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
  ***************************************************************************/
 
-#ifndef _GTE_ACCURACY_H_
-#define _GTE_ACCURACY_H_
+ // Orginal code by Blade_Arma, additional fixes and conversion to C++ class by tapcio
 
-struct OGLVertex
+#pragma once
+
+struct GTEVertex
 {
-	GLfloat x;
-	GLfloat y;
-	//GLfloat z;
+	float x;
+	float y;
+	//float z; 
 };
 
-extern void resetGteVertices();
-extern bool getGteVertex(s16 sx, s16 sy, OGLVertex* vertex);
-extern void GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
+class GTEAccuracy
+{
+private:
+	static const size_t COORDS_ARRAY_SIZE = 0x800 * 2;
+	std::array<std::array<GTEVertex, COORDS_ARRAY_SIZE>, COORDS_ARRAY_SIZE> gteCoords;
+	bool dirty = true;
 
-#endif // _GTE_ACCURACY_H_
+public:
+	void clear();
+	bool get(s16 sx, s16 sy, GTEVertex* vertex);
+	void set(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
+};
+
+
+
+

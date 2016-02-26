@@ -6,25 +6,26 @@
 class GPUPatches
 {
 public:
-    typedef BOOL(__cdecl* tOffset)(void);
+	typedef BOOL(__cdecl* tOffset)(void);
 	typedef void(__cdecl* tprimMoveImage)(unsigned char * baseAddr);
 
-    GPUPatches();
-    ~GPUPatches();
+	GPUPatches();
+	~GPUPatches();
 
-    struct GTEData
-    {
+	struct GTEData
+	{
 		std::array<s16*, 4> lx;
 		std::array<s16*, 4> ly;
-		std::array<OGLVertex*, 4> vertex;
-        s16* PSXDisplay_CumulOffset_x;
-        s16* PSXDisplay_CumulOffset_y;
-    };
+		std::array<GTEVertex*, 4> vertex;
+		s16* PSXDisplay_CumulOffset_x;
+		s16* PSXDisplay_CumulOffset_y;
+	};
 
-    void GTEAccuracy();
-    void FixMemoryDetection();
+	void EnableGTEAccuracy();
+	GTEAccuracy& GetGTEAccuracy() { return m_gteacc; };
+	void FixMemoryDetection();
 	void EnableVsync(s32 interval);
-    void ResHack(u32 _x, u32 _y);
+	void ResHack(u32 _x, u32 _y);
 	void FixFullscreenAspect();
 	void ApplyWindowProc(HWND hWnd);
 	void EnableTextureScaler(u32 scale, u32 m_batch_size, bool force_nearest, bool fast_fbe, u32 texture_cache_size);
@@ -32,7 +33,8 @@ public:
 	void ResetGTECache();
 
 private:
-    GTEData m_gtedata;
+	GTEData m_gtedata;
+	GTEAccuracy m_gteacc;
 	u32 m_scale;
 	u32 m_batch_size;
 
@@ -47,16 +49,13 @@ private:
 	static tOffset ooffset3;
 
 	static BOOL __cdecl offset4(void);
-    static tOffset ooffset4;
-
-	static void __cdecl primMoveImage(unsigned char * baseAddr);
-	static tprimMoveImage oprimMoveImage;
+	static tOffset ooffset4;
 
 	int* locVRamSize;
 	typedef u32(__cdecl* fCheckTextureMemory)();
 	fCheckTextureMemory CheckTextureMemory;
-    int GetVideoMemoryAMD();
-    int GetVideoMemoryNV();
+	int GetVideoMemoryAMD();
+	int GetVideoMemoryNV();
 
 	// ResHack
 	u16* nopX;

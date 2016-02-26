@@ -1,6 +1,6 @@
 
 SETTING(BoolValue, bool, GTEAccuracy, "Options", true, "#Enables GTE Accuracy Hack");
-SETTING(BoolValue, bool, GTECacheClear, "Options", true, "#Clears GTE vertex cache on FBE, fixes some 2D screens");
+SETTING(BoolValue, bool, GTECacheClear, "Options", true, "#Clears GTE vertex cache on VRAM reads, fixes some 2D screens");
 SETTING(BoolValue, bool, FixMemoryDetection, "Options", false, "#Fixes VRAM size detection");
 SETTING(LongValue, s32, VSyncInterval, "Options", 0, "#Enables VSync, paramater specifies the minimum number of video frames that are displayed before a buffer swap will occur");
 SETTING(BoolValue, bool, HideCursor, "Options", false, "#Hides cursor in window");

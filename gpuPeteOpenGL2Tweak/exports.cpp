@@ -84,7 +84,7 @@ u32 CALLBACK EXPORT_GPUreadData()
 void CALLBACK EXPORT_GPUreadDataMem(u32* pMem, s32 iSize)
 {
     EXPORT_LOG(__FUNCTION__);
-	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
+	return context.OnGPUreadDataMem(pMem, iSize);
 }
 
 void CALLBACK EXPORT_GPUwriteStatus(u32 gdata)
@@ -120,7 +120,7 @@ void CALLBACK EXPORT_GPUsetMode(u32 gdata)
 void CALLBACK EXPORT_GPUupdateLace()
 {
     EXPORT_LOG(__FUNCTION__);
-	return context.OnGPUupdateLace();
+	return GPUPlugin::Get().GPUupdateLace();
 }
 
 s32 CALLBACK EXPORT_GPUdmaChain(u32 * baseAddrL, u32 addr)
