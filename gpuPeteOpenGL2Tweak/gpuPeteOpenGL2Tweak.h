@@ -3,6 +3,7 @@
 #include "GPUPatches.h"
 
 #define PLUGINLOG(format, ...) printf("TWEAK: " format "\n", __VA_ARGS__)
+#define PLUGINLOGF(format, ...) printf("TWEAK: " __FUNCTION__ " " format "\n", __VA_ARGS__)
 
 static const char *ini_filename = ".\\inis\\gpuPeteOpenGL2Tweak.ini";
 

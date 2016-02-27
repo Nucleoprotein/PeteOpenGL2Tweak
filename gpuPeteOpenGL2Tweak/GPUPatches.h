@@ -7,7 +7,6 @@ class GPUPatches
 {
 public:
 	typedef BOOL(__cdecl* tOffset)(void);
-	typedef void(__cdecl* tprimMoveImage)(unsigned char * baseAddr);
 
 	GPUPatches();
 	~GPUPatches();
@@ -73,6 +72,7 @@ private:
 
 	//float* locFPS;
 	u32* locFBE;
+	int* lociDataReadMode; //0x10051F2C
 
 	WNDPROC oldWndProc;
 	static LRESULT CALLBACK TweakWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

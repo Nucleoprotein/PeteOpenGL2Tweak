@@ -100,7 +100,7 @@ public:
 		m_petes = LoadLibraryA(dllfilename);
 		if (!m_petes)
 		{
-			HRESULT hr = GetLastError();
+			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
 			std::unique_ptr<char[]> error_msg(new char[MAX_PATH]);
 			sprintf_s(error_msg.get(), MAX_PATH, "Cannot load \"%s\" error: 0x%x", dllfilename, hr);
 			MessageBoxA(NULL, error_msg.get(), "Error", MB_ICONERROR);

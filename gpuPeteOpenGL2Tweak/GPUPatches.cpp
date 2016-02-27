@@ -58,6 +58,8 @@ GPUPatches::GPUPatches()
 	//locFPS = (float*)GPUPlugin::Get().GetPluginMem(0x0004FFD8);
 
 	locFBE = (u32*)GPUPlugin::Get().GetPluginMem(0x000500E0);
+
+	lociDataReadMode = (int*)GPUPlugin::Get().GetPluginMem(0x00051F2C);
 }
 
 GPUPatches::~GPUPatches()
@@ -284,7 +286,10 @@ std::vector<u32> GPUPatches::DePosterize(const u32* source, int width, int heigh
 
 void GPUPatches::ResetGTECache()
 {
-	m_gteacc.clear();
+	if (*lociDataReadMode == 1)
+	{
+		m_gteacc.clear();
+	}
 }
 
 std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 srcHeight)
