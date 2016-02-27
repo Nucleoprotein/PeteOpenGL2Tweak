@@ -172,7 +172,7 @@ void GPUPatches::EnableGTEAccuracy()
 	CreateHook(offset4, GPUPatches::offset4, &ooffset4);
 	EnableHook(offset4);
 
-	m_gteacc.init(context.GetConfig().GetUseSmallCache());
+	m_gteacc.clear();
 }
 
 void GPUPatches::ResHack(u32 _x, u32 _y)
@@ -305,8 +305,8 @@ std::vector<u32> GPUPatches::ScaleTexture(const u32* source, u32 srcWidth, u32 s
 	//calculate slice
 	int slice = (srcWidth * srcHeight) / m_batch_size;
 	if (slice > (int)(srcHeight / 2)) slice = srcHeight / 2;
-	if (slice <= 0) slice = 1;
 	slice = std::min<u32>(slice, m_max_slices);
+	if (slice <= 0) slice = 1;
 
 	//PLUGINLOG("slice: %lu, srcWidth: %lu, srcHeight: %lu, pixels: %lu", slice, srcWidth, srcHeight, srcWidth * srcHeight);
 	if ((m_fast_fbe && *locFBE && ((srcWidth * srcHeight) < 16 * 16 || (srcWidth * srcHeight) > 128 * 128)) || m_force_nearest)

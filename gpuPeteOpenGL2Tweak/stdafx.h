@@ -24,6 +24,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <bitset>
 #include <unordered_map>
 
 #include "..\MinHook\include\MinHook.h"

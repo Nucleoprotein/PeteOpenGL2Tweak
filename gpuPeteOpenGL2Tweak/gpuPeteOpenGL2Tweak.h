@@ -5,7 +5,12 @@
 #define PLUGINLOG(format, ...) printf("TWEAK: " format "\n", __VA_ARGS__)
 
 static const char *ini_filename = ".\\inis\\gpuPeteOpenGL2Tweak.ini";
+
+#ifndef _DEBUG
 static const char *libraryName = "PeteOpenGL2 Tweaks";
+#else
+static const char *libraryName = "PeteOpenGL2 Tweaks DEBUG";
+#endif
 
 static const char *dllfilename = ".\\plugins\\gpuPeteOpenGL2.dll";
 static const char *dllfilename2 = ".\\plugins\\gpuPeopsOpenGL2.dll";

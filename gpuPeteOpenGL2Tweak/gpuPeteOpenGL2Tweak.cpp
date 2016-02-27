@@ -69,7 +69,7 @@ s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
 	return ret;
 }
 
-s32  Context::OnGPUshutdown()
+s32 Context::OnGPUshutdown()
 {
 	return GPUPlugin::Get().GPUshutdown();
 }
