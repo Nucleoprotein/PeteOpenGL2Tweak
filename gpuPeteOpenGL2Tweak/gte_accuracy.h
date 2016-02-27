@@ -32,11 +32,13 @@ struct GTEVertex
 class GTEAccuracy
 {
 private:
-	static const size_t COORDS_ARRAY_SIZE = 0x800 * 2;
-	std::array<std::array<GTEVertex, COORDS_ARRAY_SIZE>, COORDS_ARRAY_SIZE> gteCoords;
+	std::vector<std::vector<GTEVertex>> gteCoords;
 	bool dirty = true;
+	bool small_cache = false;
 
 public:
+	void init(bool small_cache);
+
 	void clear();
 	bool get(s16 sx, s16 sy, GTEVertex* vertex);
 	void set(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);

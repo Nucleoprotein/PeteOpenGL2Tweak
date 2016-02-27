@@ -27,50 +27,66 @@
 #include "gte_accuracy.h"
 #include "gpuPeteOpenGL2Tweak.h"
 
+void GTEAccuracy::init(bool small_cache)
+{
+	size_t cache_width = 0x800 * 2;
+	size_t cache_height = 0x800 * 2;
+
+	if (small_cache)
+	{
+		this->small_cache = small_cache;
+		cache_width = 640;
+		cache_height = 480;
+	}
+
+	gteCoords = std::vector<std::vector<GTEVertex>>(cache_height, std::vector<GTEVertex>(cache_width));
+	clear();
+
+	PLUGINLOG("GTEAccuracy Cache Size %.2fMB", gteCoords.size() * gteCoords[0].size() * sizeof(GTEVertex) / (1024.0f*1024.0f) );
+}
+
 void GTEAccuracy::clear()
 {
 	if (dirty)
 	{
-		//gteCoords.fill(std::array<OGLVertex, COORDS_ARRAY_SIZE>());
-		// memset is faster 
-		memset(gteCoords.data(), 0, COORDS_ARRAY_SIZE * COORDS_ARRAY_SIZE * sizeof(GTEVertex));
+		//PLUGINLOG(__FUNCTION__);
+		for (auto && w : gteCoords)
+			std::fill(w.begin(), w.end(), GTEVertex());
+
 		dirty = false;
 	}
 }
 
 bool GTEAccuracy::get(s16 sx, s16 sy, GTEVertex* vertex)
 {
-	if (sx >= -0x800 && sx <= 0x7ff &&
-		sy >= -0x800 && sy <= 0x7ff)
-	{
-		if ((std::fabs(gteCoords[sy + 0x800][sx + 0x800].x - sx) < 1.0f) &&
-			(std::fabs(gteCoords[sy + 0x800][sx + 0x800].y - sy) < 1.0f))
-		{
-			//PLUGINLOG("%fx%f %dx%d", gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y, sx, sy);
-			vertex->x = gteCoords[sy + 0x800][sx + 0x800].x;
-			vertex->y = gteCoords[sy + 0x800][sx + 0x800].y;
-			//vertex->z = gteCoords[sy + 0x800][sx + 0x800].z;
+	static s32 sx_center = gteCoords[0].size() / 2;
+	static s32 sy_center = gteCoords.size() / 2;
 
+	if (sx >= -sx_center && sx <= sx_center - 1 &&
+		sy >= -sy_center && sy <= sy_center - 1)
+	{
+		if ((std::fabs(gteCoords[sy + sy_center][sx + sx_center].x - sx) < 1.0f) &&
+			(std::fabs(gteCoords[sy + sy_center][sx + sx_center].y - sy) < 1.0f))
+		{
+			vertex->x = gteCoords[sy + sy_center][sx + sx_center].x;
+			vertex->y = gteCoords[sy + sy_center][sx + sx_center].y;
 			return true;
 		}
 	}
-
 	return false;
 }
 
 void GTEAccuracy::set(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 {
-	if (sx >= -0x800 && sx <= 0x7ff &&
-		sy >= -0x800 && sy <= 0x7ff)
+	static s32 sx_center = gteCoords[0].size() / 2;
+	static s32 sy_center = gteCoords.size() / 2;
+
+	if (sx >= -sx_center && sx <= sx_center - 1 &&
+		sy >= -sy_center && sy <= sy_center - 1)
 	{
-		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
-		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
-
+		gteCoords[sy + sy_center][sx + sx_center].x = fx / 65536.0f;
+		gteCoords[sy + sy_center][sx + sx_center].y = fy / 65536.0f;
 		dirty = true;
-
-		//gteCoords[sy + 0x800][sx + 0x800].z = fz / 65536.0f;
-
-		//PLUGINLOG("%dx%d %lldx%lld %fx%f", sx, sy, fx, fy, gteCoords[sy + 0x800][sx + 0x800].x, gteCoords[sy + 0x800][sx + 0x800].y);
 	}
 }
 

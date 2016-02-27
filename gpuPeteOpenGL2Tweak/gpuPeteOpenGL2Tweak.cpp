@@ -95,6 +95,14 @@ void Context::OnGPUreadDataMem(u32* pMem, s32 iSize)
 	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
 }
 
+void Context::OnGPUsetframelimit(u32 option)
+{
+	if (m_config.GetDisableSetFrameLimit())
+		return;
+
+	return GPUPlugin::Get().GPUsetframelimit(option);
+}
+
 void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 {
 	static std::once_flag flag;

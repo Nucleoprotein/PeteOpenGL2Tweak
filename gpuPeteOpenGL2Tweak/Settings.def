@@ -1,12 +1,15 @@
 
-SETTING(BoolValue, bool, GTEAccuracy, "Options", true, "#Enables GTE Accuracy Hack");
-SETTING(BoolValue, bool, GTECacheClear, "Options", true, "#Clears GTE vertex cache on VRAM reads, fixes some 2D screens");
-SETTING(BoolValue, bool, FixMemoryDetection, "Options", false, "#Fixes VRAM size detection");
+SETTING(BoolValue, bool, FixMemoryDetection, "Options", true, "#Fixes VRAM size detection");
 SETTING(LongValue, s32, VSyncInterval, "Options", 0, "#Enables VSync, paramater specifies the minimum number of video frames that are displayed before a buffer swap will occur");
 SETTING(BoolValue, bool, HideCursor, "Options", false, "#Hides cursor in window");
 SETTING(BoolValue, bool, UsePEC, "Options", false, "#Use Playstation Emulation Cheater plugin");
 SETTING(BoolValue, bool, HardcoreMode, "Options", false, "#Disables PEC and emulator save states (ie. F1/F2/F3 keys)");
 SETTING(BoolValue, bool, FixFullscreenAspect, "Options", false, "#Fixes fullscreen aspect ratio, default disabled because it's buggy");
+SETTING(BoolValue, bool, DisableSetFrameLimit, "Options", false, "#Disable sound plugin FPS auto limit");
+
+SETTING(BoolValue, bool, GTEAccuracy, "GTEAccuracy", true, "#Enables GTE Accuracy Hack");
+SETTING(BoolValue, bool, UseSmallCache, "GTEAccuracy", true, "#Use small (640x480) vertex cache");
+SETTING(BoolValue, bool, GTECacheClear, "GTEAccuracy", true, "#Clears GTE vertex cache on VRAM reads, fixes some 2D screens, slow without small cache");
 
 SETTING(LongValue, s32, WindowX, "Window", -1, "#Moves window to X position");
 SETTING(LongValue, s32, WindowY, "Window", -1, "#Moves window to Y position");

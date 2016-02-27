@@ -172,7 +172,7 @@ void GPUPatches::EnableGTEAccuracy()
 	CreateHook(offset4, GPUPatches::offset4, &ooffset4);
 	EnableHook(offset4);
 
-	m_gteacc.clear();
+	m_gteacc.init(context.GetConfig().GetUseSmallCache());
 }
 
 void GPUPatches::ResHack(u32 _x, u32 _y)

@@ -216,5 +216,5 @@ void CALLBACK EXPORT_GPUsetfix(u32 dwFixBits)
 void CALLBACK EXPORT_GPUsetframelimit(u32 option)
 {
     EXPORT_LOG(__FUNCTION__);
-	return GPUPlugin::Get().GPUsetframelimit(option);
+	return context.OnGPUsetframelimit(option);
 }
