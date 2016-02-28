@@ -82,10 +82,17 @@ s32 Context::OnGPUclose()
 	return GPUPlugin::Get().GPUclose();
 }
 
+u32 Context::OnGPUreadData()
+{
+	if (gteAccHack && config.GetGTECacheClear())
+		gteAccHack->ResetGTECache(true);
+
+	return GPUPlugin::Get().GPUreadData();
+}
 void Context::OnGPUreadDataMem(u32* pMem, s32 iSize)
 {
 	if (gteAccHack && config.GetGTECacheClear())
-		gteAccHack->ResetGTECache();
+		gteAccHack->ResetGTECache(false);
 
 	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
 }

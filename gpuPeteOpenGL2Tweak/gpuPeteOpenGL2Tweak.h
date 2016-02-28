@@ -74,6 +74,7 @@ public:
     s32 OnGPUinit();
     s32 OnGPUclose();
     void OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
+	u32 OnGPUreadData();
 	void OnGPUreadDataMem(u32* pMem, s32 iSize);
 	void OnGPUsetframelimit(u32 option);
 

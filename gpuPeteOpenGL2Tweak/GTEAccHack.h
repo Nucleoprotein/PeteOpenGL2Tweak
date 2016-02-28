@@ -59,6 +59,6 @@ public:
 	~GTEAccHack();
 
 	void AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
-	void ResetGTECache();
+	void ResetGTECache(bool single);
 };
 

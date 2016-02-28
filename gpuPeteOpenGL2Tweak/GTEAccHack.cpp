@@ -49,9 +49,9 @@ GTEAccHack::~GTEAccHack()
 {
 }
 
-void GTEAccHack::ResetGTECache()
+void GTEAccHack::ResetGTECache(bool single)
 {
-	if (*iDataReadMode == 1)
+	if (*iDataReadMode == 1 || single)
 		ClearCache();
 }
 
@@ -59,6 +59,9 @@ void GTEAccHack::ClearCache()
 {
 	if (dirty)
 	{
+		static s32 count = 0;
+		PLUGINLOGF("%d", ++count);
+
 		//PLUGINLOG(__FUNCTION__ " %lu", sizeof(gteCoordsValidation));
 		//gteCoordsValidation.fill(std::bitset<0x800 * 2>());
 		memset(gteCoordsValidation.data(), 0, sizeof(gteCoordsValidation));
@@ -93,8 +96,7 @@ void GTEAccHack::AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
 		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
 
-		gteCoordsValidation[sy + 0x800][sx + 0x800] = true;
-		dirty = true;
+		dirty = gteCoordsValidation[sy + 0x800][sx + 0x800] = true;
 	}
 }
 

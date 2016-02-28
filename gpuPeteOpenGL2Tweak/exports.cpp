@@ -78,7 +78,7 @@ u32 CALLBACK EXPORT_GPUreadStatus()
 u32 CALLBACK EXPORT_GPUreadData()
 {
     EXPORT_LOG(__FUNCTION__);
-	return GPUPlugin::Get().GPUreadData();
+	return context.OnGPUreadData();
 }
 
 void CALLBACK EXPORT_GPUreadDataMem(u32* pMem, s32 iSize)
