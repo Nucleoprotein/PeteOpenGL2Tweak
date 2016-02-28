@@ -36,7 +36,7 @@ s32 CALLBACK EXPORT_GPUinit()
 s32 CALLBACK EXPORT_GPUshutdown()
 {
     EXPORT_LOG(__FUNCTION__);
-    return context.OnGPUshutdown();
+    return GPUPlugin::Get().GPUshutdown();
 }
 
 s32 CALLBACK EXPORT_GPUopen(HWND hwndGPU)
@@ -66,7 +66,7 @@ void CALLBACK EXPORT_GPUabout()
 s32 CALLBACK EXPORT_GPUtest()
 {
     EXPORT_LOG(__FUNCTION__);
-    return context.OnGPUtest();
+    return GPUPlugin::Get().GPUtest();
 }
 
 u32 CALLBACK EXPORT_GPUreadStatus()

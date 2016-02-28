@@ -1,7 +1,3 @@
-
-#include "gte_accuracy.h"
-#include "GPUPatches.h"
-
 #define PLUGINLOG(format, ...) printf("TWEAK: " format "\n", __VA_ARGS__)
 #define PLUGINLOGF(format, ...) printf("TWEAK: " __FUNCTION__ " " format "\n", __VA_ARGS__)
 
@@ -61,6 +57,10 @@ public:
 #undef SETTING
 };
 
+class GPUPatches;
+class GTEAccHack;
+class TextureScaler;
+
 class Context : NonCopyable
 {
 public:
@@ -69,33 +69,19 @@ public:
     Context();
     ~Context();
 
-	Config& GetConfig(){ return m_config; };
-	GPUPatches& GetPatches(){ return m_gpupatches; };
+	Config& GetConfig(){ return config; };
 
     s32 OnGPUinit();
-    s32 OnGPUshutdown();
     s32 OnGPUclose();
     void OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
 	void OnGPUreadDataMem(u32* pMem, s32 iSize);
 	void OnGPUsetframelimit(u32 option);
 
-    s32 OnGPUtest();
-
-    void* GetEmulatorMemory(u32 offset = 0)
-    {
-		std::string exename = ModuleNameA(NULL);
-
-		if (StringSearchIgnoreCase(exename, "ePSXeCutor"))
-            return nullptr;
-		if (!StringSearchIgnoreCase(exename, "ePSXe"))
-            return nullptr;
-
-        return (u8*)GetModuleHandle(NULL) + offset;
-    }
-
 private:
-    Config m_config;
-    GPUPatches m_gpupatches;
+    Config config;
+    std::unique_ptr<GPUPatches> gpuPatches;
+	std::unique_ptr<GTEAccHack> gteAccHack;
+	std::unique_ptr<TextureScaler> textureScaler;
 
 	static s32(CALLBACK* oGPUopen)(HWND hwndGPU);
 	static s32 CALLBACK Hook_GPUopen(HWND hwndGPU);

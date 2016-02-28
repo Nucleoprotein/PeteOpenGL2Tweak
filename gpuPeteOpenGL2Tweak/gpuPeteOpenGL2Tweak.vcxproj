@@ -98,12 +98,13 @@
     <ClInclude Include="GPUPatches.h" />
     <ClInclude Include="gpuPeteOpenGL2Tweak.h" />
     <ClInclude Include="GPUPlugin.h" />
-    <ClInclude Include="gte_accuracy.h" />
+    <ClInclude Include="GTEAccHack.h" />
     <ClInclude Include="psemu_plugin_defs.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SafeWrite.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TextureScaler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\xxHash\xxhash.c">
@@ -120,12 +121,13 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="exports.cpp" />
-    <ClCompile Include="gte_accuracy.cpp" />
+    <ClCompile Include="GTEAccHack.cpp" />
     <ClCompile Include="GPUPatches.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TextureScaler.cpp" />
     <ClCompile Include="xBRZ\xbrz.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>

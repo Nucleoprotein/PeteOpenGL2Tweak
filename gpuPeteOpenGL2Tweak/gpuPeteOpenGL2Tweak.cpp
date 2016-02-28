@@ -1,14 +1,17 @@
 
 #include "stdafx.h"
-
 #include "gpuPeteOpenGL2Tweak.h"
 #include "GPUPlugin.h"
+#include "GPUPatches.h"
+#include "GTEAccHack.h"
+#include "TextureScaler.h"
 
 Context Context::instance;
 
 Context::Context()
 {
 	MH_Initialize();
+	gpuPatches.reset(new GPUPatches);
 }
 
 Context::~Context()
@@ -22,14 +25,15 @@ s32 Context::OnGPUinit()
 	EnableHook(GPUPlugin::Get().GPUopen);
 
 	PLUGINLOG("Pete OpenGL2 Tweak Enabled");
-	if (m_config.GetGTEAccuracy())
-		m_gpupatches.EnableGTEAccuracy();
 
-	u32 scale = clamp<u32>(m_config.GetxBRZScale(), 1, 6);
-	m_gpupatches.EnableTextureScaler(scale, m_config.GetBatchSize(), m_config.GetForceNearest(), m_config.GetFastFBE(), m_config.GetTextureCacheSize());
+	if (config.GetxBRZScale() > 1)
+	{
+		if (!textureScaler)
+			textureScaler.reset(new TextureScaler);
+	}
 
-	if (m_config.GetMulX() > 0 && m_config.GetMulY() > 0)
-		m_gpupatches.ResHack(m_config.GetMulX(), m_config.GetMulY());
+	if (config.GetMulX() > 0 && config.GetMulY() > 0)
+		gpuPatches->ResHack(config.GetMulX(), config.GetMulY());
 
 	return GPUPlugin::Get().GPUinit();
 }
@@ -43,10 +47,10 @@ s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
 	std::call_once(glewInitFlag, glewInit);
 
 	if (context.GetConfig().GetFixFullscreenAspect())
-		context.GetPatches().FixFullscreenAspect();
+		context.gpuPatches->FixFullscreenAspect();
 
 	if (context.GetConfig().GetFixMemoryDetection())
-		context.GetPatches().FixMemoryDetection();
+		context.gpuPatches->FixMemoryDetection();
 
 	HWND insertAfter = HWND_TOP;
 	UINT flags = SWP_NOSIZE | SWP_NOMOVE | SWP_NOCOPYBITS | SWP_NOSENDCHANGING;
@@ -58,10 +62,10 @@ s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
 		flags &= ~SWP_NOMOVE;
 
 	SetWindowPos(hwndGPU, insertAfter, context.GetConfig().GetWindowX(), context.GetConfig().GetWindowY(), 0, 0, flags);
-	context.GetPatches().ApplyWindowProc(hwndGPU);
+	context.gpuPatches->ApplyWindowProc(hwndGPU);
 
 	if (context.GetConfig().GetVSyncInterval())
-		context.GetPatches().EnableVsync(context.GetConfig().GetVSyncInterval());
+		context.gpuPatches->EnableVsync(context.GetConfig().GetVSyncInterval());
 
 	if (context.GetConfig().GetHideCursor())
 		while (ShowCursor(FALSE) > -1);
@@ -69,35 +73,26 @@ s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
 	return ret;
 }
 
-s32 Context::OnGPUshutdown()
-{
-	return GPUPlugin::Get().GPUshutdown();
-}
-
 s32 Context::OnGPUclose()
 {
-	if (m_config.GetVSyncInterval())
-		m_gpupatches.EnableVsync(0);
+	if (config.GetVSyncInterval())
+		gpuPatches->EnableVsync(0);
 
-	if (m_config.GetHideCursor()) while (ShowCursor(TRUE) < 0);
+	if (config.GetHideCursor()) while (ShowCursor(TRUE) < 0);
 	return GPUPlugin::Get().GPUclose();
-}
-
-s32 Context::OnGPUtest()
-{
-	return GPUPlugin::Get().GPUtest();
 }
 
 void Context::OnGPUreadDataMem(u32* pMem, s32 iSize)
 {
-	if (m_config.GetGTEAccuracy() && m_config.GetGTECacheClear())
-		m_gpupatches.ResetGTECache();
+	if (gteAccHack && config.GetGTECacheClear())
+		gteAccHack->ResetGTECache();
+
 	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
 }
 
 void Context::OnGPUsetframelimit(u32 option)
 {
-	if (m_config.GetDisableSetFrameLimit())
+	if (config.GetDisableSetFrameLimit())
 		return;
 
 	return GPUPlugin::Get().GPUsetframelimit(option);
@@ -105,17 +100,13 @@ void Context::OnGPUsetframelimit(u32 option)
 
 void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 {
-	static std::once_flag flag;
-	std::call_once(flag, []()
+	if (config.GetGTEAccuracy())
 	{
-		PLUGINLOG("GTE Accuracy Hack Enabled");
-	});
+		if (!gteAccHack)
+			gteAccHack.reset(new GTEAccHack);
 
-	if (m_config.GetGTEAccuracy())
-	{
-		GTEAccuracy& gteacc = m_gpupatches.GetGTEAccuracy();
 		//PLUGINLOG("GPUaddVertex: sx = %hu sy = %hu fx = %llu fy = %llu fz = %llu", sx, sy, fx, fy, fz);
-		return gteacc.set(sx, sy, fx, fy, fz);
+		return gteAccHack->AddGTEVertex(sx, sy, fx, fy, fz);
 	}
 
 
