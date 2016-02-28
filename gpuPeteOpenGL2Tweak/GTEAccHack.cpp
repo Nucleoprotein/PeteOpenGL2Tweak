@@ -59,8 +59,8 @@ void GTEAccHack::ClearCache()
 {
 	if (dirty)
 	{
-		static s32 count = 0;
-		PLUGINLOGF("%d", ++count);
+		//static s32 count = 0;
+		//PLUGINLOGF("%d", ++count);
 
 		//PLUGINLOG(__FUNCTION__ " %lu", sizeof(gteCoordsValidation));
 		//gteCoordsValidation.fill(std::bitset<0x800 * 2>());
