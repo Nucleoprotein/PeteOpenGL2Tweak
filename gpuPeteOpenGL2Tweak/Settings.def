@@ -17,7 +17,7 @@ SETTING(BoolValue, bool, WindowOnTop, "Window", false, "#Set window on-top flag"
 SETTING(LongValue, u32, MulX, "ResHack", 8, "#Internal resolution X multiplier, recommended max: 8");
 SETTING(LongValue, u32, MulY, "ResHack", 8, "#Internal resolution Y multiplier, recommended max: 12");
 
-SETTING(LongValue, u32, xBRZScale, "xBRZ", 4, "#xBRZ scale, max 6");
+SETTING(LongValue, u32, xBRZScale, "xBRZ", 2, "#xBRZ scale, max 6");
 SETTING(LongValue, u32, BatchSize, "xBRZ", 1024, "#Number of texels in batch for xBRZ scaler");
 SETTING(LongValue, u32, MaxSlicesCount, "xBRZ", 12, "#Maxium number of threads");
 SETTING(BoolValue, bool, Deposterize, "xBRZ", true, "#Deposterize, usefull for games with heavy dithering like Silent Hill");

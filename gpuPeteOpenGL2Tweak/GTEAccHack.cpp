@@ -57,31 +57,28 @@ void GTEAccHack::ResetGTECache(bool single)
 
 void GTEAccHack::ClearCache()
 {
-	if (dirty)
+	if (is_dirty)
 	{
-		//static s32 count = 0;
-		//PLUGINLOGF("%d", ++count);
-
-		//PLUGINLOG(__FUNCTION__ " %lu", sizeof(gteCoordsValidation));
-		//gteCoordsValidation.fill(std::bitset<0x800 * 2>());
-		memset(gteCoordsValidation.data(), 0, sizeof(gteCoordsValidation));
-		dirty = false;
+		isCoordValid.fill(0);
 	}
 }
 
 bool GTEAccHack::GetGTEVertex(s16 sx, s16 sy, GTEVertex* vertex)
 {
-	if (!gteCoordsValidation[sy + 0x800][sx + 0x800])
-		return false;
-
 	if (sx >= -0x800 && sx <= 0x7FF &&
 		sy >= -0x800 && sy <= 0x7FF)
 	{
-		if ((std::fabs(gteCoords[sy + 0x800][sx + 0x800].x - sx) < 1.0f) &&
-			(std::fabs(gteCoords[sy + 0x800][sx + 0x800].y - sy) < 1.0f))
+		s32 x = sx + 0x800;
+		s32 y = sy + 0x800;
+
+		if (!isCoordValid[x][y])
+			return false;
+
+		if ((std::fabs(gteCoords[x][y].x - sx) < 1.0f) &&
+			(std::fabs(gteCoords[x][y].y - sy) < 1.0f))
 		{
-			vertex->x = gteCoords[sy + 0x800][sx + 0x800].x;
-			vertex->y = gteCoords[sy + 0x800][sx + 0x800].y;
+			vertex->x = gteCoords[x][y].x;
+			vertex->y = gteCoords[x][y].y;
 			return true;
 		}
 	}
@@ -93,10 +90,13 @@ void GTEAccHack::AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 	if (sx >= -0x800 && sx <= 0x7FF &&
 		sy >= -0x800 && sy <= 0x7FF)
 	{
-		gteCoords[sy + 0x800][sx + 0x800].x = fx / 65536.0f;
-		gteCoords[sy + 0x800][sx + 0x800].y = fy / 65536.0f;
+		s32 x = sx + 0x800;
+		s32 y = sy + 0x800;
 
-		dirty = gteCoordsValidation[sy + 0x800][sx + 0x800] = true;
+		gteCoords[x][y].x = fx / 65536.0f;
+		gteCoords[x][y].y = fy / 65536.0f;
+
+		isCoordValid[x][y] = is_dirty = true;
 	}
 }
 

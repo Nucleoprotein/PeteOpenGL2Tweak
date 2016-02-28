@@ -10,6 +10,8 @@ static GPUPatches* s_GPUPatches;
 
 GPUPatches::GPUPatches()
 {
+	PLUGINLOG("Pete OpenGL2 Tweak Enabled");
+
 	s_GPUPatches = this;
 
 	CheckTextureMemory = (CheckTextureMemory_fn)GPUPlugin::Get().GetPluginMem(0x000448B0);
@@ -21,14 +23,14 @@ GPUPatches::GPUPatches()
 	mulX = (u8*)GPUPlugin::Get().GetPluginMem(0x00009431);
 	mulY = (u8*)GPUPlugin::Get().GetPluginMem(0x0000944C);
 
-	locW = (u32*)GPUPlugin::Get().GetPluginMem(0x000522A0);
-	locH = (u32*)GPUPlugin::Get().GetPluginMem(0x000522A4);
-
 	locX = (u32*)GPUPlugin::Get().GetPluginMem(0x0004FA70);
 	locY = (u32*)GPUPlugin::Get().GetPluginMem(0x0004FA74);
 
-	locWinSize = (u32*)GPUPlugin::Get().GetPluginMem(0x00052124);
-	locWindowned = (BOOL*)GPUPlugin::Get().GetPluginMem(0x00052120);
+	iWindowned = (s32*)GPUPlugin::Get().GetPluginMem(0x00052120);
+	iWinSize = (s32*)GPUPlugin::Get().GetPluginMem(0x00052124);
+
+	iResX = (s32*)GPUPlugin::Get().GetPluginMem(0x000522A0);
+	iResY = (s32*)GPUPlugin::Get().GetPluginMem(0x000522A4);
 }
 
 GPUPatches::~GPUPatches()
@@ -74,7 +76,7 @@ void GPUPatches::FixMemoryDetection()
 		int iVRamSize = GetVideoMemoryAMD();
 		if (!iVRamSize) iVRamSize = GetVideoMemoryNV();
 
-		if (iVRamSize > 1024) iVRamSize = 1024; //clamp memory to 512MB, more does nothing
+		if (iVRamSize > 512) iVRamSize = 512; //clamp memory to 512MB, more does nothing
 		if (iVRamSize)
 		{
 			SafeWrite(locVRamSize, iVRamSize);
@@ -120,24 +122,21 @@ void GPUPatches::ResHack(u32 _x, u32 _y)
 
 void GPUPatches::FixFullscreenAspect()
 {
-	if (locWindowned && *locWindowned)
+	if (*iWindowned)
 		return;
 
-	int w = (int)(GetSystemMetrics(SM_CXSCREEN) * 0.75);
+	int w = GetSystemMetrics(SM_CXSCREEN);
 	int h = GetSystemMetrics(SM_CYSCREEN);
 
-	int x = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
-	int y = 0;
+	*(this->iResX) = (s32)(w * 0.75f);
+	*(this->iResY) = h;
 
-	PLUGINLOG("FixFullscreenAspect %d %d %d %d", x, y, w, h);
+	*locX = (w - *(this->iResX)) / 2;
+	*locY = 0;
 
-	SafeWrite<u32>(locW, w);
-	SafeWrite<u32>(locH, h);
+	*iWinSize = MAKELONG(iResX, iResY);
 
-	SafeWrite<u32>(locX, x);
-	SafeWrite<u32>(locY, y);
-
-	//SafeWrite<u32>(locWinSize, MAKELONG(w, h));
+	PLUGINLOG("FixFullscreenAspect");
 }
 
 LRESULT CALLBACK GPUPatches::TweakWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -146,7 +145,7 @@ LRESULT CALLBACK GPUPatches::TweakWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam
 	{
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		if (context.GetConfig().GetHardcoreMode() &&
+		if (context.GetConfig()->GetHardcoreMode() &&
 			(wParam == VK_F1 ||
 				wParam == VK_F2 ||
 				wParam == VK_F3))

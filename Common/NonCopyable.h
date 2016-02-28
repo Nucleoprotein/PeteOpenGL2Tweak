@@ -6,7 +6,7 @@ class NonCopyable
 protected:
 	NonCopyable() {}
 	~NonCopyable() {}
-private:
-	NonCopyable( const NonCopyable& );
-	const NonCopyable& operator=( NonCopyable& other );
+
+	NonCopyable(const NonCopyable&) = delete;
+	const NonCopyable& operator=(NonCopyable& other) = delete;
 };

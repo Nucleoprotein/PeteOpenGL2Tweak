@@ -69,7 +69,10 @@ public:
     Context();
     ~Context();
 
-	Config& GetConfig(){ return config; };
+	std::shared_ptr<Config> GetConfig() const
+	{ 
+		return config; 
+	}; 
 
     s32 OnGPUinit();
     s32 OnGPUclose();
@@ -79,7 +82,7 @@ public:
 	void OnGPUsetframelimit(u32 option);
 
 private:
-    Config config;
+	std::shared_ptr<Config> config;
     std::unique_ptr<GPUPatches> gpuPatches;
 	std::unique_ptr<GTEAccHack> gteAccHack;
 	std::unique_ptr<TextureScaler> textureScaler;

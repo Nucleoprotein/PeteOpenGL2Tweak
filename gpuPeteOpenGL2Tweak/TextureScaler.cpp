@@ -11,31 +11,29 @@ static TextureScaler* s_TextureScaler;
 
 TextureScaler::TextureScaler()
 {
+	PLUGINLOG("%ux%s Texture Filter, BatchSize: %lu", scale, force_nearest ? " Nearest Neighbour" : "BRZ", batch_size);
+
 	s_TextureScaler = this;
 
-	iFrameBufferEffect = (u32*)GPUPlugin::Get().GetPluginMem(0x000500E0);
+	scale = context.GetConfig()->GetxBRZScale();
+	batch_size = context.GetConfig()->GetBatchSize();
+	force_nearest = context.GetConfig()->GetForceNearest();
+	fast_fbe = context.GetConfig()->GetFastFBE();
+	texture_cache_size = context.GetConfig()->GetTextureCacheSize();
+	max_slices = context.GetConfig()->GetMaxSlicesCount();
 
-	scale = context.GetConfig().GetxBRZScale();
-	batch_size = context.GetConfig().GetBatchSize();
-	force_nearest = context.GetConfig().GetForceNearest();
-	fast_fbe = context.GetConfig().GetFastFBE();
-	texture_cache_size = context.GetConfig().GetTextureCacheSize();
-	max_slices = context.GetConfig().GetMaxSlicesCount();
+	iFrameBufferEffect = (u32*)GPUPlugin::Get().GetPluginMem(0x000500E0);
 
 	CreateHook(glTexImage2D, Hook_glTexImage2D, reinterpret_cast<void**>(&oglTexImage2D));
 	EnableHook(glTexImage2D);
 
 	CreateHook(glTexSubImage2D, Hook_glTexSubImage2D, reinterpret_cast<void**>(&oglTexSubImage2D));
 	EnableHook(glTexSubImage2D);
-
-	PLUGINLOG("%ux%s Texture Filter, BatchSize: %lu", scale, force_nearest ? " Nearest Neighbour" : "BRZ", batch_size);
 }
-
 
 TextureScaler::~TextureScaler()
 {
 }
-
 
 void (APIENTRY* TextureScaler::oglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
 void APIENTRY TextureScaler::Hook_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
@@ -111,7 +109,7 @@ std::vector<u32> TextureScaler::ScaleTexture(const u32* source, u32 srcWidth, u3
 		return std::move(textureBuffer);
 	}
 
-	if (context.GetConfig().GetDeposterize())
+	if (context.GetConfig()->GetDeposterize())
 	{
 		const auto& buffer = DePosterize(source, srcWidth, srcHeight);
 		concurrency::parallel_for(0, (int)srcHeight, slice, [&](const int& i)

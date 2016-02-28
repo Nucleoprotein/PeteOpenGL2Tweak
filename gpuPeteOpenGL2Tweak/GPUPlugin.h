@@ -47,12 +47,12 @@ public:
 
 	GPUPlugin()
 	{
-		if (context.GetConfig().GetUsePEC() && !context.GetConfig().GetHardcoreMode())
+		if (context.GetConfig()->GetUsePEC() && !context.GetConfig()->GetHardcoreMode())
 		{
 			m_pec = LoadLibraryA(pecfilename);
 			if (m_pec)
 			{
-				PLUGINLOG("PEC Loaded");
+				PLUGINLOG("Loaded %s", pecfilename);
 				GetPECProcedure("GPUinit", &GPUinit);
 				GetPECProcedure("GPUshutdown", &GPUshutdown);
 

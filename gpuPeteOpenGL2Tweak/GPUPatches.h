@@ -16,12 +16,12 @@ private:
 	u8* mulY;
 
 	// FixAspect
-	u32* locW;
-	u32* locH;
 	u32* locX;
 	u32* locY;
-	u32* locWinSize;
-	BOOL* locWindowned;
+	s32* iWinSize;
+	s32* iWindowned;
+	s32* iResX;
+	s32* iResY;
 
 	WNDPROC oldWndProc;
 	static LRESULT CALLBACK TweakWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
