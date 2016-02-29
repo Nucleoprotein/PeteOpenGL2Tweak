@@ -1,7 +1,7 @@
 #define PLUGINLOG(format, ...) printf("TWEAK: " format "\n", __VA_ARGS__)
 #define PLUGINLOGF(format, ...) printf("TWEAK: " __FUNCTION__ " " format "\n", __VA_ARGS__)
 
-static const char *ini_filename = ".\\inis\\gpuPeteOpenGL2Tweak.ini";
+static const char *inifilename = "\\gpuPeteOpenGL2Tweak.ini";
 
 #ifndef _DEBUG
 static const char *libraryName = "PeteOpenGL2 Tweaks";
@@ -9,9 +9,8 @@ static const char *libraryName = "PeteOpenGL2 Tweaks";
 static const char *libraryName = "PeteOpenGL2 Tweaks DEBUG";
 #endif
 
-static const char *dllfilename = ".\\plugins\\gpuPeteOpenGL2.dll";
-static const char *dllfilename2 = ".\\plugins\\gpuPeopsOpenGL2.dll";
-static const char *pecfilename = ".\\plugins\\gpupec.dll";
+static const char *dllfilename = "\\gpuPeteOpenGL2.dll";
+static const char *pecfilename = "\\gpupec.dll";
 
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 4
@@ -23,10 +22,12 @@ class Config : NonCopyable
 public:
     Config()
     {
-		CreateDirectoryA(".\\inis", NULL);
+		std::string inisdir = StringFromFormat("%s%s", ModuleDirectoryA(0).c_str(), "\\inis");
+		CreateDirectoryA(inisdir.c_str(), NULL);
 
         CSimpleIniA ini;
-		ini.LoadFile(ini_filename);
+		std::string inipath = StringFromFormat("%s%s", inisdir.c_str(), inifilename);
+		ini.LoadFile(inipath.c_str());
 
 		u32 config_version = ini.GetLongValue("Version", "Config");
 		if (config_version != CONFIG_VERSION)
@@ -40,8 +41,8 @@ public:
 #undef SETTING
 
 			ini.SetLongValue("Version", "Config", CONFIG_VERSION);
-            ini.SaveFile(ini_filename);
-            ini.LoadFile(ini_filename);
+            ini.SaveFile(inipath.c_str());
+            ini.LoadFile(inipath.c_str());
         }
 
 #define SETTING(_func, _type, _var, _section, _defaultval, _comment) \

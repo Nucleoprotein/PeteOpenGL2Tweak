@@ -11,16 +11,17 @@ static TextureScaler* s_TextureScaler;
 
 TextureScaler::TextureScaler()
 {
-	PLUGINLOG("%ux%s Texture Filter, BatchSize: %lu", scale, force_nearest ? " Nearest Neighbour" : "BRZ", batch_size);
-
-	s_TextureScaler = this;
-
 	scale = context.GetConfig()->GetxBRZScale();
 	batch_size = context.GetConfig()->GetBatchSize();
 	force_nearest = context.GetConfig()->GetForceNearest();
 	fast_fbe = context.GetConfig()->GetFastFBE();
 	texture_cache_size = context.GetConfig()->GetTextureCacheSize();
 	max_slices = context.GetConfig()->GetMaxSlicesCount();
+
+	if (scale <= 1)
+		return;
+
+	s_TextureScaler = this;
 
 	iFrameBufferEffect = (u32*)GPUPlugin::Get().GetPluginMem(0x000500E0);
 
@@ -29,6 +30,8 @@ TextureScaler::TextureScaler()
 
 	CreateHook(glTexSubImage2D, Hook_glTexSubImage2D, reinterpret_cast<void**>(&oglTexSubImage2D));
 	EnableHook(glTexSubImage2D);
+
+	PLUGINLOG("%ux%s Texture Filter, BatchSize: %lu", scale, force_nearest ? " Nearest Neighbour" : "BRZ", batch_size);
 }
 
 TextureScaler::~TextureScaler()

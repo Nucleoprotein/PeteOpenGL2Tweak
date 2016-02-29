@@ -10,9 +10,9 @@ static GTEAccHack* s_GTEAccHack;
 
 GTEAccHack::GTEAccHack()
 {
-	PLUGINLOG("GTE Accuracy Hack Enabled");
-
 	s_GTEAccHack = this;
+
+	slow_clear = context.GetConfig()->GetAggressiveClear();
 
 	lx[0] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A08);
 	lx[1] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A0A);
@@ -43,6 +43,11 @@ GTEAccHack::GTEAccHack()
 	EnableHook(offset4);
 
 	ClearCache();
+
+	if (slow_clear)
+		isCoordValidSlow.resize(0x800 * 2);
+
+	PLUGINLOG("GTE Accuracy Hack Enabled");
 }
 
 GTEAccHack::~GTEAccHack()
@@ -59,7 +64,10 @@ void GTEAccHack::ClearCache()
 {
 	if (is_dirty)
 	{
-		isCoordValid.fill(0);
+		if (slow_clear)
+			std::fill(isCoordValidSlow.begin(), isCoordValidSlow.end(), 0);
+		else
+			isCoordValidFast.fill(0);
 	}
 }
 
@@ -71,8 +79,16 @@ bool GTEAccHack::GetGTEVertex(s16 sx, s16 sy, GTEVertex* vertex)
 		s32 x = sx + 0x800;
 		s32 y = sy + 0x800;
 
-		if (!isCoordValid[x][y])
-			return false;
+		if (slow_clear)
+		{
+			if (!isCoordValidSlow[x][y])
+				return false;
+		}
+		else
+		{
+			if (!isCoordValidFast[x >> 8][y >> 8])
+				return false;
+		}
 
 		if ((std::fabs(gteCoords[x][y].x - sx) < 1.0f) &&
 			(std::fabs(gteCoords[x][y].y - sy) < 1.0f))
@@ -96,7 +112,12 @@ void GTEAccHack::AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 		gteCoords[x][y].x = fx / 65536.0f;
 		gteCoords[x][y].y = fy / 65536.0f;
 
-		isCoordValid[x][y] = is_dirty = true;
+		if (slow_clear)
+			isCoordValidSlow[x][y] = true;
+		else
+			isCoordValidFast[x >> 8][y >> 8] = true;
+
+		is_dirty = true;
 	}
 }
 

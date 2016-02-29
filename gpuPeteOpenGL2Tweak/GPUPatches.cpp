@@ -10,8 +10,6 @@ static GPUPatches* s_GPUPatches;
 
 GPUPatches::GPUPatches()
 {
-	PLUGINLOG("Pete OpenGL2 Tweak Enabled");
-
 	s_GPUPatches = this;
 
 	CheckTextureMemory = (CheckTextureMemory_fn)GPUPlugin::Get().GetPluginMem(0x000448B0);
@@ -31,6 +29,8 @@ GPUPatches::GPUPatches()
 
 	iResX = (s32*)GPUPlugin::Get().GetPluginMem(0x000522A0);
 	iResY = (s32*)GPUPlugin::Get().GetPluginMem(0x000522A4);
+
+	PLUGINLOG("Pete OpenGL2 Tweak Enabled");
 }
 
 GPUPatches::~GPUPatches()

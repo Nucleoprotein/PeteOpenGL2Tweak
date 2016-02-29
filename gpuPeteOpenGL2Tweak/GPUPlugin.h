@@ -49,10 +49,11 @@ public:
 	{
 		if (context.GetConfig()->GetUsePEC() && !context.GetConfig()->GetHardcoreMode())
 		{
-			m_pec = LoadLibraryA(pecfilename);
+			std::string pecpath = StringFromFormat("%s%s", ModuleDirectoryA(CurrentModule()).c_str(), pecfilename);
+			m_pec = LoadLibraryA(pecpath.c_str());
 			if (m_pec)
 			{
-				PLUGINLOG("Loaded %s", pecfilename);
+				PLUGINLOG("Loaded %s", pecpath.c_str());
 				GetPECProcedure("GPUinit", &GPUinit);
 				GetPECProcedure("GPUshutdown", &GPUshutdown);
 
@@ -96,19 +97,19 @@ public:
 				GetPECProcedure("GPUsetframelimit", &GPUsetframelimit);
 			}
 		}
-
-		m_petes = LoadLibraryA(dllfilename);
+		std::string petespath = StringFromFormat("%s%s", ModuleDirectoryA(CurrentModule()).c_str(), dllfilename);
+		m_petes = LoadLibraryA(petespath.c_str());
 		if (!m_petes)
 		{
 			HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
 			std::unique_ptr<char[]> error_msg(new char[MAX_PATH]);
-			sprintf_s(error_msg.get(), MAX_PATH, "Cannot load \"%s\" error: 0x%x", dllfilename, hr);
+			sprintf_s(error_msg.get(), MAX_PATH, "Cannot load \"%s\" error: 0x%x", petespath.c_str(), hr);
 			MessageBoxA(NULL, error_msg.get(), "Error", MB_ICONERROR);
 			exit(hr);
 		}
 		else
 		{
-			PLUGINLOG("Loaded %s", dllfilename);
+			PLUGINLOG("Loaded %s", petespath.c_str());
 		}
 
 		GetPetesProcedure("GPUinit", &GPUinit);

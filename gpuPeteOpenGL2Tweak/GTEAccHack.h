@@ -40,8 +40,10 @@ private:
 	s32* iDataReadMode;
 
 	std::array<std::array<GTEVertex, 0x800 * 2>, 0x800 * 2> gteCoords;
-	std::array<std::bitset<0x800 * 2>, 0x800 * 2> isCoordValid;
+	std::array<std::bitset<16>, 16> isCoordValidFast;
+	std::vector<std::bitset<0x800 * 2>> isCoordValidSlow;
 	bool is_dirty = true;
+	bool slow_clear;
 
 	bool GetGTEVertex(s16 sx, s16 sy, GTEVertex* vertex);
 	void ClearCache();
