@@ -207,6 +207,18 @@ void CALLBACK EXPORT_GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
     return context.OnGPUaddVertex(sx, sy, fx, fy, fz);
 }
 
+s32 CALLBACK EXPORT_GPUgetVertex(s16 sx, s16 sy, u16 z, float* fx, float* fy)
+{
+	EXPORT_LOG(__FUNCTION__);
+	return context.OnGPUgetVertex(sx, sy, z, fx, fy);
+}
+
+void CALLBACK EXPORT_GPUclearVertex(s16 sx, s16 sy, u16 z)
+{
+	EXPORT_LOG(__FUNCTION__);
+	return context.OnGPUclearVertex(sx, sy, z);
+}
+
 void CALLBACK EXPORT_GPUsetfix(u32 dwFixBits)
 {
     EXPORT_LOG(__FUNCTION__);

@@ -9,7 +9,6 @@ SETTING(BoolValue, bool, DisableSetFrameLimit, "Options", false, "#Disable sound
 
 SETTING(BoolValue, bool, GTEAccuracy, "GTEAccuracy", true, "#Enables GTE Accuracy Hack");
 SETTING(BoolValue, bool, GTECacheClear, "GTEAccuracy", true, "#Clears GTE vertex cache on VRAM reads, fixes some 2D screens");
-SETTING(BoolValue, bool, AggressiveClear, "GTEAccuracy", false, "#Invalidate each vertex, not 256x256 blocks, slower");
 
 SETTING(LongValue, s32, WindowX, "Window", -1, "#Moves window to X position");
 SETTING(LongValue, s32, WindowY, "Window", -1, "#Moves window to Y position");

@@ -101,7 +101,7 @@ std::vector<u32> TextureScaler::ScaleTexture(const u32* source, u32 srcWidth, u3
 	if (slice <= 0) slice = 1;
 
 	//PLUGINLOG("slice: %lu, srcWidth: %lu, srcHeight: %lu, pixels: %lu", slice, srcWidth, srcHeight, srcWidth * srcHeight);
-	if ((fast_fbe && *iFrameBufferEffect && ((srcWidth * srcHeight) < 16 * 16 || (srcWidth * srcHeight) > 128 * 128)) || force_nearest)
+	if ((fast_fbe && *iFrameBufferEffect && ((srcWidth * srcHeight) < 32 * 32 || (srcWidth * srcHeight) > 128 * 128)) || force_nearest)
 	{
 		concurrency::parallel_for(0, (int)srcHeight, slice, [&](const int& i)
 		{

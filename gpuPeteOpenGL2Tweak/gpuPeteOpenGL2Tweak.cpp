@@ -115,3 +115,16 @@ void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
 		return gteAccHack->AddGTEVertex(sx, sy, fx, fy, fz);
 	}
 }
+
+s32 Context::OnGPUgetVertex(s16 sx, s16 sy, u16 z, float * fx, float * fy)
+{
+	if (gteAccHack)
+		return gteAccHack->GetGTEVertex(sx, sy, z, fx, fy);
+	return 0;
+}
+
+void Context::OnGPUclearVertex(s16 sx, s16 sy, u16 z)
+{
+	if (gteAccHack)
+		return gteAccHack->ClearGTEVertex(sx, sy, z);
+}

@@ -32,4 +32,7 @@ EXPORTS
 	GPUvisualVibration=EXPORT_GPUvisualVibration	@65
 
 	GPUaddVertex=EXPORT_GPUaddVertex				@128
+	GPUclearVertex=EXPORT_GPUclearVertex			@129
+	GPUgetVertex=EXPORT_GPUgetVertex				@130
+
 

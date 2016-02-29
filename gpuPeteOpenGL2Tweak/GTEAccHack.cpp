@@ -12,8 +12,6 @@ GTEAccHack::GTEAccHack()
 {
 	s_GTEAccHack = this;
 
-	slow_clear = context.GetConfig()->GetAggressiveClear();
-
 	lx[0] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A08);
 	lx[1] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A0A);
 	lx[2] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A0C);
@@ -24,10 +22,10 @@ GTEAccHack::GTEAccHack()
 	ly[2] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A14);
 	ly[3] = (s16*)GPUPlugin::Get().GetPluginMem(0x00051A16);
 
-	vertex[0] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052220);
-	vertex[1] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052238);
-	vertex[2] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052250);
-	vertex[3] = (GTEVertex*)GPUPlugin::Get().GetPluginMem(0x00052268);
+	vertex[0] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052220);
+	vertex[1] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052238);
+	vertex[2] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052250);
+	vertex[3] = (OGLVertex*)GPUPlugin::Get().GetPluginMem(0x00052268);
 
 	PSXDisplay_CumulOffset_x = (s16*)GPUPlugin::Get().GetPluginMem(0x00051FFC);
 	PSXDisplay_CumulOffset_y = (s16*)GPUPlugin::Get().GetPluginMem(0x00051FFE);
@@ -43,9 +41,6 @@ GTEAccHack::GTEAccHack()
 	EnableHook(offset4);
 
 	ClearCache();
-
-	if (slow_clear)
-		isCoordValidSlow.resize(0x800 * 2);
 
 	PLUGINLOG("GTE Accuracy Hack Enabled");
 }
@@ -64,77 +59,118 @@ void GTEAccHack::ClearCache()
 {
 	if (is_dirty)
 	{
-		if (slow_clear)
-			std::fill(isCoordValidSlow.begin(), isCoordValidSlow.end(), 0);
-		else
-			isCoordValidFast.fill(0);
+		//isCoordValid.fill(0);
 	}
 }
 
-bool GTEAccHack::GetGTEVertex(s16 sx, s16 sy, GTEVertex* vertex)
+void GTEAccHack::GetGTEVertex(s16 sx, s16 sy, OGLVertex* vertex)
 {
-	if (sx >= -0x800 && sx <= 0x7FF &&
-		sy >= -0x800 && sy <= 0x7FF)
-	{
-		s32 x = sx + 0x800;
-		s32 y = sy + 0x800;
+	if (sx < -0x800 || sx >= 0x800 || sy < -0x800 || sy >= 0x800)
+		return; // Out of range
 
-		if (slow_clear)
-		{
-			if (!isCoordValidSlow[x][y])
-				return false;
-		}
-		else
-		{
-			if (!isCoordValidFast[x >> 8][y >> 8])
-				return false;
-		}
+	u16 x = sx + 0x800;
+	u16 y = sy + 0x800;
 
-		if ((std::fabs(gteCoords[x][y].x - sx) < 1.0f) &&
-			(std::fabs(gteCoords[x][y].y - sy) < 1.0f))
-		{
-			vertex->x = gteCoords[x][y].x;
-			vertex->y = gteCoords[x][y].y;
-			return true;
-		}
-	}
-	return false;
+	if (!isCoordValid[x][y])
+		return;
+
+	vertex->x = gteCoords[x][y].x + *PSXDisplay_CumulOffset_x;
+	vertex->y = gteCoords[x][y].y + *PSXDisplay_CumulOffset_y;
+
+	isCoordDrawn[x][y] = true;
 }
 
-void GTEAccHack::AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
+s32 GTEAccHack::GetGTEVertex(s16 sx, s16 sy, u16 z, float* fx, float* fy)
 {
-	if (sx >= -0x800 && sx <= 0x7FF &&
-		sy >= -0x800 && sy <= 0x7FF)
+	if (sx < -0x800 || sx >= 0x800 || sy < -0x800 || sy >= 0x800)
+		return 0; // Out of range
+
+	u16 x = sx + 0x800;
+	u16 y = sy + 0x800;
+
+	if (!isCoordValid[x][y] || gteCoords[x][y].z != z)
+		return 0;
+
+	//PLUGINLOG("%d %d %u", sx, sy, z);
+
+	*fx = gteCoords[x][y].x;
+	*fy = gteCoords[x][y].y;
+
+	return 1;
+}
+
+float lerp(float x, float y, float s)
+{
+	return x*(1 - s) + y*s;
+}
+
+void GTEAccHack::AddGTEVertex(s16 sx, s16 sy, s64 llx, s64 lly, s64 llz)
+{
+	if (sx < -0x800 || sx >= 0x800 || sy < -0x800 || sy >= 0x800)
+		return; // Out of range
+
+	u16 x = sx + 0x800;
+	u16 y = sy + 0x800;
+
+	float fx = float(llx) / float(1 << 16);
+	float fy = float(lly) / float(1 << 16);
+
+	u16 z = (u16)llz;
+
+	if (std::fabs(sx - fx) >= 1.0f || std::fabs(sy - fy) >= 1.0f)
+		return;
+
+	if (gteCoords[x][y].x == fx && gteCoords[x][y].y == fy && gteCoords[x][y].z == z)
+		return;
+
+#if 0
+	if (isCoordValid[x][y] && gteCoords[x][y].z == z && !isCoordDrawn[x][y])
 	{
-		s32 x = sx + 0x800;
-		s32 y = sy + 0x800;
+		float lerpx = lerp(gteCoords[x][y].x, fx, 0.5);
+		float lerpy = lerp(gteCoords[x][y].y, fy, 0.5);
 
-		gteCoords[x][y].x = fx / 65536.0f;
-		gteCoords[x][y].y = fy / 65536.0f;
+		//PLUGINLOG("%f %f %f %f %f %f", gteCoords[x][y].x, gteCoords[x][y].y, fx, fy, lerpx, lerpy);
 
-		if (slow_clear)
-			isCoordValidSlow[x][y] = true;
-		else
-			isCoordValidFast[x >> 8][y >> 8] = true;
+		gteCoords[x][y].x = lerpx;
+		gteCoords[x][y].y = lerpy;
+		gteCoords[x][y].z = z;
 
-		is_dirty = true;
+		isCoordValid[x][y] = is_dirty = true;
+		isCoordDrawn[x][y] = false;
+
+		return;
+	}
+#endif // 0
+
+
+	gteCoords[x][y].x = fx;
+	gteCoords[x][y].y = fy;
+	gteCoords[x][y].z = z;
+
+	isCoordValid[x][y] = is_dirty = true;
+	isCoordDrawn[x][y] = false;
+}
+
+void GTEAccHack::ClearGTEVertex(s16 sx, s16 sy, u16 z)
+{
+	if (sx < -0x800 || sx >= 0x800 || sy < -0x800 || sy >= 0x800)
+		return; // Out of range
+
+	s32 x = sx + 0x800;
+	s32 y = sy + 0x800;
+
+	if (gteCoords[x][y].z == z && !isCoordDrawn[x][y])
+	{
+		//PLUGINLOG("%d %d %u", sx, sy, z);
+		isCoordValid[x][y] = false;
 	}
 }
 
 void GTEAccHack::fix_offsets(s32 count)
 {
-	//PLUGINLOG("GTE Accuracy offset%d", _case);
-	//PLUGINLOG("PSXDisplay_CumulOffset_x %d PSXDisplay_CumulOffset_y %d", *m_gtedata.PSXDisplay_CumulOffset_x, *m_gtedata.PSXDisplay_CumulOffset_y);
-
-	//for (int i = 0; i < count; ++i)
-
 	concurrency::parallel_for(0, count, 1, [&](const int& i)
 	{
-		if (GetGTEVertex(*lx[i], *ly[i], vertex[i]))
-		{
-			vertex[i]->x += *PSXDisplay_CumulOffset_x;
-			vertex[i]->y += *PSXDisplay_CumulOffset_y;
-		}
+		GetGTEVertex(*lx[i], *ly[i], vertex[i]);
 	}
 	);
 }

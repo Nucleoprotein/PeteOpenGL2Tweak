@@ -26,6 +26,7 @@
 #include <map>
 #include <bitset>
 #include <unordered_map>
+#include <ppl.h>
 
 #include "..\MinHook\include\MinHook.h"
 

@@ -20,11 +20,18 @@
 *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
 ***************************************************************************/
 
+struct OGLVertex
+{
+	float x;
+	float y;
+	float z;
+};
+
 struct GTEVertex
 {
 	float x;
 	float y;
-	//float z; - not used
+	float z;
 };
 
 class GTEAccHack
@@ -34,18 +41,17 @@ private:
 
 	std::array<s16*, 4> lx;
 	std::array<s16*, 4> ly;
-	std::array<GTEVertex*, 4> vertex;
+	std::array<OGLVertex*, 4> vertex;
 	s16* PSXDisplay_CumulOffset_x;
 	s16* PSXDisplay_CumulOffset_y;
 	s32* iDataReadMode;
 
-	std::array<std::array<GTEVertex, 0x800 * 2>, 0x800 * 2> gteCoords;
-	std::array<std::bitset<16>, 16> isCoordValidFast;
-	std::vector<std::bitset<0x800 * 2>> isCoordValidSlow;
+	std::array<std::array<GTEVertex, 0x1000>, 0x1000> gteCoords;
+	std::array<std::bitset<0x1000>, 0x1000> isCoordValid;
+	std::array<std::bitset<0x1000>, 0x1000> isCoordDrawn;
 	bool is_dirty = true;
-	bool slow_clear;
 
-	bool GetGTEVertex(s16 sx, s16 sy, GTEVertex* vertex);
+	void GetGTEVertex(s16 sx, s16 sy, OGLVertex* vertex);
 	void ClearCache();
 
 	void fix_offsets(s32 count);
@@ -60,7 +66,9 @@ public:
 	GTEAccHack();
 	~GTEAccHack();
 
-	void AddGTEVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
+	void AddGTEVertex(s16 sx, s16 sy, s64 llx, s64 lly, s64 llz);
+	void ClearGTEVertex(s16 sx, s16 sy, u16 z);
 	void ResetGTECache(bool single);
+	s32 GetGTEVertex(s16 sx, s16 sy, u16 z, float* x, float* y);
 };
 
