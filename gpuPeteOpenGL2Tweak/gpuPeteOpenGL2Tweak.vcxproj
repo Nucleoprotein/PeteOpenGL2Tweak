@@ -98,7 +98,7 @@
     <ClInclude Include="GPUPatches.h" />
     <ClInclude Include="gpuPeteOpenGL2Tweak.h" />
     <ClInclude Include="GPUPlugin.h" />
-    <ClInclude Include="GTEAccHack.h" />
+    <ClInclude Include="pgxp_gpu.h" />
     <ClInclude Include="psemu_plugin_defs.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SafeWrite.h" />
@@ -121,7 +121,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="exports.cpp" />
-    <ClCompile Include="GTEAccHack.cpp" />
+    <ClCompile Include="pgxp_gpu.cpp" />
     <ClCompile Include="GPUPatches.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

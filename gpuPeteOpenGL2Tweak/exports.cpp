@@ -78,13 +78,13 @@ u32 CALLBACK EXPORT_GPUreadStatus()
 u32 CALLBACK EXPORT_GPUreadData()
 {
     EXPORT_LOG(__FUNCTION__);
-	return context.OnGPUreadData();
+	return GPUPlugin::Get().GPUreadData();
 }
 
 void CALLBACK EXPORT_GPUreadDataMem(u32* pMem, s32 iSize)
 {
     EXPORT_LOG(__FUNCTION__);
-	return context.OnGPUreadDataMem(pMem, iSize);
+	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
 }
 
 void CALLBACK EXPORT_GPUwriteStatus(u32 gdata)
@@ -125,7 +125,7 @@ void CALLBACK EXPORT_GPUupdateLace()
 
 s32 CALLBACK EXPORT_GPUdmaChain(u32 * baseAddrL, u32 addr)
 {
-    EXPORT_LOG(__FUNCTION__);
+	EXPORT_LOG(__FUNCTION__);
 	return GPUPlugin::Get().GPUdmaChain(baseAddrL, addr);
 }
 
@@ -201,24 +201,6 @@ void CALLBACK EXPORT_GPUcursor(s32 iPlayer, s32 x, s32 y)
 	return GPUPlugin::Get().GPUcursor(iPlayer, x, y);
 }
 
-void CALLBACK EXPORT_GPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
-{
-    EXPORT_LOG(__FUNCTION__);
-    return context.OnGPUaddVertex(sx, sy, fx, fy, fz);
-}
-
-s32 CALLBACK EXPORT_GPUgetVertex(s16 sx, s16 sy, u16 z, float* fx, float* fy)
-{
-	EXPORT_LOG(__FUNCTION__);
-	return context.OnGPUgetVertex(sx, sy, z, fx, fy);
-}
-
-void CALLBACK EXPORT_GPUclearVertex(s16 sx, s16 sy, u16 z)
-{
-	EXPORT_LOG(__FUNCTION__);
-	return context.OnGPUclearVertex(sx, sy, z);
-}
-
 void CALLBACK EXPORT_GPUsetfix(u32 dwFixBits)
 {
     EXPORT_LOG(__FUNCTION__);
@@ -229,4 +211,11 @@ void CALLBACK EXPORT_GPUsetframelimit(u32 option)
 {
     EXPORT_LOG(__FUNCTION__);
 	return context.OnGPUsetframelimit(option);
+}
+
+// PGXP
+void CALLBACK EXPORT_GPUpgxpMemory(unsigned int addr, unsigned char* pVRAM)
+{
+	EXPORT_LOG(__FUNCTION__);
+	return context.SetPGXPMem(addr, pVRAM);
 }
