@@ -31,8 +31,7 @@ EXPORTS
 	GPUsetframelimit=EXPORT_GPUsetframelimit		@64
 	GPUvisualVibration=EXPORT_GPUvisualVibration	@65
 
-	GPUaddVertex=EXPORT_GPUaddVertex				@128
-	GPUclearVertex=EXPORT_GPUclearVertex			@129
-	GPUgetVertex=EXPORT_GPUgetVertex				@130
+	; PGXP
+	GPUpgxpMemory=EXPORT_GPUpgxpMemory				@128
 
 

@@ -59,7 +59,7 @@ public:
 };
 
 class GPUPatches;
-class GTEAccHack;
+class PGXP;
 class TextureScaler;
 
 class Context : NonCopyable
@@ -77,21 +77,21 @@ public:
 
     s32 OnGPUinit();
     s32 OnGPUclose();
-    void OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz);
-	void OnGPUclearVertex(s16 sx, s16 sy, u16 z);
-	u32 OnGPUreadData();
-	void OnGPUreadDataMem(u32* pMem, s32 iSize);
 	void OnGPUsetframelimit(u32 option);
-	s32 OnGPUgetVertex(s16 sx, s16 sy, u16 z, float* fx, float* fy);
+
+	void SetPGXPMem(unsigned int addr, unsigned char* pVRAM);
 
 private:
 	std::shared_ptr<Config> config;
     std::unique_ptr<GPUPatches> gpuPatches;
-	std::unique_ptr<GTEAccHack> gteAccHack;
+	std::unique_ptr<PGXP> pgxp;
 	std::unique_ptr<TextureScaler> textureScaler;
 
 	static s32(CALLBACK* oGPUopen)(HWND hwndGPU);
-	static s32 CALLBACK Hook_GPUopen(HWND hwndGPU);
+	static s32 CALLBACK hookGPUopen(HWND hwndGPU);
+
+	static void (CALLBACK* oGPUwriteDataMem)(u32* pMem, s32 iSize);
+	static void CALLBACK hookGPUwriteDataMem(u32* pMem, s32 iSize);
 };
 
 template<typename N>

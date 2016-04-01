@@ -48,10 +48,10 @@
     <ClInclude Include="deposterize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GTEAccHack.h">
+    <ClInclude Include="TextureScaler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureScaler.h">
+    <ClInclude Include="pgxp_gpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,10 +77,10 @@
     <ClCompile Include="..\xxHash\xxhash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GTEAccHack.cpp">
+    <ClCompile Include="TextureScaler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureScaler.cpp">
+    <ClCompile Include="pgxp_gpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

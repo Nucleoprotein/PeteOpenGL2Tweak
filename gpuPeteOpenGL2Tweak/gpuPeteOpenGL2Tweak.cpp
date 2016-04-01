@@ -3,7 +3,7 @@
 #include "gpuPeteOpenGL2Tweak.h"
 #include "GPUPlugin.h"
 #include "GPUPatches.h"
-#include "GTEAccHack.h"
+#include "pgxp_gpu.h"
 #include "TextureScaler.h"
 
 Context Context::instance;
@@ -22,14 +22,20 @@ Context::~Context()
 
 s32 Context::OnGPUinit()
 {
-	CreateHook(GPUPlugin::Get().GPUopen, Hook_GPUopen, reinterpret_cast<void**>(&oGPUopen));
+	CreateHook(GPUPlugin::Get().GPUopen, hookGPUopen, reinterpret_cast<void**>(&oGPUopen));
 	EnableHook(GPUPlugin::Get().GPUopen);
+
+	CreateHook(GPUPlugin::Get().GPUwriteDataMem, hookGPUwriteDataMem, reinterpret_cast<void**>(&oGPUwriteDataMem));
+	EnableHook(GPUPlugin::Get().GPUwriteDataMem);
 
 	if (config->GetxBRZScale() > 1)
 	{
 		if (!textureScaler)
 			textureScaler.reset(new TextureScaler);
 	}
+
+	if (!pgxp)
+		pgxp.reset(new PGXP);
 
 	if (config->GetMulX() > 0 && config->GetMulY() > 0)
 		gpuPatches->ResHack(config->GetMulX(), config->GetMulY());
@@ -38,7 +44,7 @@ s32 Context::OnGPUinit()
 }
 
 s32(CALLBACK* Context::oGPUopen)(HWND hwndGPU);
-s32 CALLBACK Context::Hook_GPUopen(HWND hwndGPU)
+s32 CALLBACK Context::hookGPUopen(HWND hwndGPU)
 {
 	s32 ret = oGPUopen(hwndGPU);
 
@@ -81,21 +87,6 @@ s32 Context::OnGPUclose()
 	return GPUPlugin::Get().GPUclose();
 }
 
-u32 Context::OnGPUreadData()
-{
-	if (gteAccHack && config->GetGTECacheClear())
-		gteAccHack->ResetGTECache(true);
-
-	return GPUPlugin::Get().GPUreadData();
-}
-void Context::OnGPUreadDataMem(u32* pMem, s32 iSize)
-{
-	if (gteAccHack && config->GetGTECacheClear())
-		gteAccHack->ResetGTECache(false);
-
-	return GPUPlugin::Get().GPUreadDataMem(pMem, iSize);
-}
-
 void Context::OnGPUsetframelimit(u32 option)
 {
 	if (config->GetDisableSetFrameLimit())
@@ -104,27 +95,18 @@ void Context::OnGPUsetframelimit(u32 option)
 	return GPUPlugin::Get().GPUsetframelimit(option);
 }
 
-void Context::OnGPUaddVertex(s16 sx, s16 sy, s64 fx, s64 fy, s64 fz)
+void (CALLBACK* Context::oGPUwriteDataMem)(u32* pMem, s32 iSize);
+void CALLBACK Context::hookGPUwriteDataMem(u32* pMem, s32 iSize)
 {
-	if (config->GetGTEAccuracy())
-	{
-		if (!gteAccHack)
-			gteAccHack.reset(new GTEAccHack);
+	if (context.pgxp)
+		context.pgxp->SetAddress();
 
-		//PLUGINLOG("GPUaddVertex: sx = %hu sy = %hu fx = %llu fy = %llu fz = %llu", sx, sy, fx, fy, fz);
-		return gteAccHack->AddGTEVertex(sx, sy, fx, fy, fz);
-	}
+	return oGPUwriteDataMem(pMem, iSize);
 }
 
-s32 Context::OnGPUgetVertex(s16 sx, s16 sy, u16 z, float * fx, float * fy)
+void Context::SetPGXPMem(unsigned int addr, unsigned char* pVRAM)
 {
-	if (gteAccHack)
-		return gteAccHack->GetGTEVertex(sx, sy, z, fx, fy);
-	return 0;
+	if (pgxp)
+		return pgxp->SetMemoryPtr(addr, pVRAM);
 }
 
-void Context::OnGPUclearVertex(s16 sx, s16 sy, u16 z)
-{
-	if (gteAccHack)
-		return gteAccHack->ClearGTEVertex(sx, sy, z);
-}
